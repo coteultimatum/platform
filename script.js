@@ -1,5 +1,6 @@
 // ========================================
 // COTE: ULTIMATUM - OAA Website Script
+// Enhanced Version
 // ========================================
 
 // State
@@ -11,16 +12,83 @@ let currentStudent = null;
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    createStarfield();
+    createParticles();
     updateTime();
+    updateGreeting();
     setInterval(updateTime, 1000);
     initLockScreen();
     initHomeScreen();
     initOAAApp();
     initBackButtons();
+    initHomeButtons();
 });
 
 // ========================================
-// TIME DISPLAY
+// STARFIELD & PARTICLES
+// ========================================
+
+function createStarfield() {
+    const starfield = document.getElementById('starfield');
+    if (!starfield) return;
+
+    const starCount = 100;
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+
+        // Random position
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+
+        // Random size (1-3px)
+        const size = Math.random() * 2 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+
+        // Random animation duration and delay
+        const duration = Math.random() * 3 + 2;
+        const delay = Math.random() * 5;
+        star.style.setProperty('--duration', duration + 's');
+        star.style.setProperty('--opacity', Math.random() * 0.5 + 0.3);
+        star.style.animationDelay = delay + 's';
+
+        starfield.appendChild(star);
+    }
+}
+
+function createParticles() {
+    const starfield = document.getElementById('starfield');
+    if (!starfield) return;
+
+    const particleCount = 15;
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        // Random horizontal position
+        particle.style.left = Math.random() * 100 + '%';
+
+        // Random size (2-5px)
+        const size = Math.random() * 3 + 2;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+
+        // Random animation duration (15-30s) and delay
+        const duration = Math.random() * 15 + 15;
+        const delay = Math.random() * 20;
+        particle.style.setProperty('--duration', duration + 's');
+        particle.style.setProperty('--opacity', Math.random() * 0.3 + 0.1);
+        particle.style.animationDelay = delay + 's';
+
+        starfield.appendChild(particle);
+    }
+}
+
+// ========================================
+// TIME & GREETING
 // ========================================
 
 function updateTime() {
@@ -45,6 +113,26 @@ function updateTime() {
     if (homeTime) homeTime.textContent = timeStr;
 }
 
+function updateGreeting() {
+    const greetingEl = document.getElementById('greeting-text');
+    if (!greetingEl) return;
+
+    const hour = new Date().getHours();
+    let greeting;
+
+    if (hour >= 5 && hour < 12) {
+        greeting = 'Good morning';
+    } else if (hour >= 12 && hour < 17) {
+        greeting = 'Good afternoon';
+    } else if (hour >= 17 && hour < 21) {
+        greeting = 'Good evening';
+    } else {
+        greeting = 'Good night';
+    }
+
+    greetingEl.textContent = greeting;
+}
+
 // ========================================
 // SCREEN NAVIGATION
 // ========================================
@@ -56,7 +144,6 @@ function showScreen(screenId) {
     const target = document.getElementById(screenId);
     if (target) {
         target.classList.add('active');
-        target.classList.add('fade-in');
     }
 }
 
@@ -69,6 +156,15 @@ function initLockScreen() {
     if (lockScreen) {
         lockScreen.addEventListener('click', () => {
             showScreen('home-screen');
+        });
+    }
+
+    // Lock button on home screen
+    const lockBtn = document.getElementById('lock-btn');
+    if (lockBtn) {
+        lockBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showScreen('lock-screen');
         });
     }
 }
@@ -92,7 +188,7 @@ function initHomeScreen() {
 }
 
 // ========================================
-// BACK BUTTONS
+// BACK & HOME BUTTONS
 // ========================================
 
 function initBackButtons() {
@@ -113,6 +209,15 @@ function initBackButtons() {
     });
 }
 
+function initHomeButtons() {
+    document.querySelectorAll('.home-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.home;
+            showScreen(target);
+        });
+    });
+}
+
 // ========================================
 // OAA APP
 // ========================================
@@ -124,7 +229,6 @@ function showOAAView(viewId) {
     const target = document.getElementById(viewId);
     if (target) {
         target.classList.add('active');
-        target.classList.add('fade-in');
     }
 }
 
@@ -287,12 +391,17 @@ function showStudentProfile(student) {
             <div class="stat-label">${statNames[index]}</div>
             <div class="stat-bar-container">
                 <div class="stat-bar">
-                    <div class="stat-bar-fill" style="width: ${value}%"></div>
+                    <div class="stat-bar-fill" style="width: 0%"></div>
                 </div>
                 <div class="stat-value">${value}/100 <span class="stat-grade">${grade}</span></div>
             </div>
         `;
         statList.appendChild(statRow);
+
+        // Animate the bar after a short delay
+        setTimeout(() => {
+            statRow.querySelector('.stat-bar-fill').style.width = value + '%';
+        }, 100 + index * 100);
     });
 
     // Update back link to return to class view
