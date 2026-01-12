@@ -247,30 +247,35 @@ function stopAmbientNoise() {
 // ========================================
 
 function initBootSounds() {
-    // Initialize audio context immediately for boot sounds
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+        // Initialize audio context immediately for boot sounds
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-    // Play sounds synchronized with CSS animations
-    // Letters appear at 0.1s, 0.2s, 0.3s, 0.4s
-    setTimeout(() => playSound('bootLetter'), 100);
-    setTimeout(() => playSound('bootLetter'), 200);
-    setTimeout(() => playSound('bootLetter'), 300);
-    setTimeout(() => playSound('bootLetter'), 400);
+        // Play sounds synchronized with CSS animations
+        // Letters appear at 0.1s, 0.2s, 0.3s, 0.4s
+        setTimeout(() => playSound('bootLetter'), 100);
+        setTimeout(() => playSound('bootLetter'), 200);
+        setTimeout(() => playSound('bootLetter'), 300);
+        setTimeout(() => playSound('bootLetter'), 400);
 
-    // Subtitle appears at 0.6s
-    setTimeout(() => playSound('bootProgress'), 600);
+        // Subtitle appears at 0.6s
+        setTimeout(() => playSound('bootProgress'), 600);
 
-    // Progress bar ticks (loader runs from 0.5s to 2.3s)
-    for (let i = 0; i < 8; i++) {
-        setTimeout(() => playSound('bootProgress'), 600 + i * 200);
+        // Progress bar ticks (loader runs from 0.5s to 2.3s)
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => playSound('bootProgress'), 600 + i * 200);
+        }
+
+        // Boot complete at ~2.2s (before fade out)
+        setTimeout(() => {
+            playSound('bootComplete');
+            // Start ambient noise after boot
+            setTimeout(() => startAmbientNoise(), 500);
+        }, 2200);
+    } catch (e) {
+        // Audio context creation failed, will try again on first click
+        console.log('Boot sounds unavailable, will initialize on user interaction');
     }
-
-    // Boot complete at ~2.2s (before fade out)
-    setTimeout(() => {
-        playSound('bootComplete');
-        // Start ambient noise after boot
-        setTimeout(() => startAmbientNoise(), 500);
-    }, 2200);
 }
 
 // ========================================
