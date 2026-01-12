@@ -123,14 +123,14 @@ function updateParallax() {
 // ========================================
 
 const quotes = [
-    { text: 'Every outcome is the result of the choices you make.', attribution: '- ANHS Student Handbook' },
-    { text: 'Talent is something you bloom, instinct is something you polish.', attribution: '- Sae Chabashira' },
-    { text: 'The weak are destined to lie beneath the boots of the strong.', attribution: '- Kakeru Ryūen' },
-    { text: 'People who cannot find something to live for always seem to be searching for something to die for.', attribution: '- Kiyotaka Ayanokōji' },
-    { text: 'It takes a great talent and skill to conceal one\'s talent and skill.', attribution: '- ANHS Principle' },
-    { text: 'True victory is not winning against others, but winning against yourself.', attribution: '- Manabu Horikita' },
-    { text: 'Those who are willing to defile themselves are the truly strong.', attribution: '- Kiyotaka Ayanokōji' },
-    { text: 'In this world, winning is everything.', attribution: '- ANHS Philosophy' }
+    { text: 'All people are nothing but tools. In this world, winning is everything.', attribution: '- Kiyotaka Ayanokōji' },
+    { text: 'I\'ve never once thought of you as an ally. Not you. Not Kushida. Not Hirata.', attribution: '- Kiyotaka Ayanokōji' },
+    { text: 'Class D is an assemblage of defective products.', attribution: '- Sae Chabashira' },
+    { text: 'Violence is the most powerful weapon. True strength means the power to use it.', attribution: '- Kakeru Ryūen' },
+    { text: 'Smiling means letting your guard down in front of another person, even if just a little.', attribution: '- Kiyotaka Ayanokōji' },
+    { text: 'There are two things that define a person: their patience when they have nothing, and their attitude when they have everything.', attribution: '- Arisu Sakayanagi' },
+    { text: 'Those who remember there was someone named Kiyotaka Ayanokōji will never forget.', attribution: '- Manabu Horikita' },
+    { text: 'It doesn\'t matter what needs to be sacrificed. As long as I win in the end, that\'s all that matters.', attribution: '- Kiyotaka Ayanokōji' }
 ];
 
 let currentTypingTimeout = null;
