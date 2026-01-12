@@ -19,6 +19,9 @@ let mouseY = 0;
 // Audio context for sound effects
 let audioContext = null;
 
+// Key repeat prevention
+let keysHeld = {};
+
 // ========================================
 // SOUND EFFECTS
 // ========================================
@@ -105,6 +108,32 @@ function playSound(type) {
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.02);
             break;
+
+        case 'hover':
+            oscillator.frequency.setValueAtTime(1400, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.015, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.015);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.015);
+            break;
+
+        case 'error':
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+            break;
+
+        case 'focus':
+            oscillator.frequency.setValueAtTime(900, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1100, audioContext.currentTime + 0.06);
+            gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.06);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.06);
+            break;
     }
 }
 
@@ -128,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initRippleEffect();
     initParallax();
     initTypingEffect();
+    initHoverSounds();
 });
 
 // ========================================
@@ -543,11 +573,37 @@ function initNavButtons() {
                 showScreen('home-screen', false);
             }
         });
-    });
 
-    document.querySelectorAll('.back-link').forEach(link => {
-        link.addEventListener('click', () => {
-            goBack();
+        btn.addEventListener('mouseenter', () => {
+            playSound('hover');
+        });
+    });
+}
+
+// ========================================
+// HOVER SOUNDS
+// ========================================
+
+function initHoverSounds() {
+    // Add hover sounds to interactive elements
+    const hoverTargets = [
+        '.app-icon',
+        '.class-card',
+        '.student-card',
+        '.student-preview',
+        '.sort-btn',
+        '.lock-btn',
+        '.view-all-link',
+        '.exam-type-card',
+        '.key-hint',
+        '.enter-hint'
+    ];
+
+    hoverTargets.forEach(selector => {
+        document.querySelectorAll(selector).forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                playSound('hover');
+            });
         });
     });
 }
@@ -557,7 +613,12 @@ function initNavButtons() {
 // ========================================
 
 function initKeyboardNav() {
+    // Prevent key repeat
     document.addEventListener('keydown', (e) => {
+        // Skip if key is being held
+        if (keysHeld[e.key]) return;
+        keysHeld[e.key] = true;
+
         // Enter to unlock
         if (e.key === 'Enter' && currentScreen === 'lock-screen') {
             playSound('unlock');
@@ -570,6 +631,7 @@ function initKeyboardNav() {
         if (e.key === 'Escape') {
             const searchInput = document.querySelector('.search-input');
             if (searchInput && document.activeElement === searchInput) {
+                playSound('back');
                 searchInput.blur();
                 searchInput.value = '';
                 filterStudents('');
@@ -580,10 +642,21 @@ function initKeyboardNav() {
             return;
         }
 
+        // Backspace to go back (when not in search)
+        if (e.key === 'Backspace') {
+            const searchInput = document.querySelector('.search-input');
+            if (!searchInput || document.activeElement !== searchInput) {
+                e.preventDefault();
+                playSound('back');
+                goBack();
+            }
+            return;
+        }
+
         // Ctrl+K or / to focus search (when in OAA app)
         if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && currentScreen === 'oaa-app')) {
             e.preventDefault();
-            playSound('click');
+            playSound('focus');
             const searchInput = document.querySelector('.search-input');
             if (searchInput && currentScreen === 'oaa-app' && currentOAAView === 'oaa-dashboard') {
                 searchInput.focus();
@@ -601,6 +674,11 @@ function initKeyboardNav() {
                 openApp('events');
             }
         }
+    });
+
+    // Release key tracking
+    document.addEventListener('keyup', (e) => {
+        keysHeld[e.key] = false;
     });
 }
 
@@ -722,8 +800,13 @@ function initSearch() {
     if (!searchInput) return;
 
     searchInput.addEventListener('input', (e) => {
+        playSound('type');
         const query = e.target.value.toLowerCase().trim();
         filterStudents(query);
+    });
+
+    searchInput.addEventListener('focus', () => {
+        playSound('focus');
     });
 
     searchInput.addEventListener('keydown', (e) => {
@@ -879,6 +962,28 @@ function createClassCard(year, className, students) {
         showClassView(year, className);
     });
 
+    // Hover sound for card
+    card.addEventListener('mouseenter', () => {
+        playSound('hover');
+    });
+
+    // Hover sound for student previews
+    card.querySelectorAll('.student-preview').forEach(preview => {
+        preview.addEventListener('mouseenter', (e) => {
+            e.stopPropagation();
+            playSound('hover');
+        });
+    });
+
+    // Hover sound for view all link
+    const viewAllLink = card.querySelector('.view-all-link');
+    if (viewAllLink) {
+        viewAllLink.addEventListener('mouseenter', (e) => {
+            e.stopPropagation();
+            playSound('hover');
+        });
+    }
+
     return card;
 }
 
@@ -945,6 +1050,9 @@ function createStudentCard(student) {
     card.addEventListener('click', () => {
         playSound('click');
         showStudentProfile(student);
+    });
+    card.addEventListener('mouseenter', () => {
+        playSound('hover');
     });
 
     const initials = getInitials(student.name);
