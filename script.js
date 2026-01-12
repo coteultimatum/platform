@@ -19,7 +19,8 @@ const state = {
     mouseY: 0,
     favorites: JSON.parse(localStorage.getItem('cote-favorites') || '[]'),
     compareList: [],
-    compareMode: false
+    compareMode: false,
+    showFavoritesOnly: false
 };
 
 // Audio context
@@ -583,6 +584,13 @@ function initKeyboardNav() {
                 toggleCompareMode();
             }
         }
+
+        // F key for favorites filter
+        if (e.key === 'f' && state.currentScreen === 'oaa-app' && state.currentOAAView === 'oaa-dashboard') {
+            if (!document.activeElement || document.activeElement.tagName !== 'INPUT') {
+                toggleFavoritesFilter();
+            }
+        }
     });
 
     document.addEventListener('keyup', (e) => {
@@ -602,6 +610,7 @@ function initOAAApp() {
     initSearch();
     initSorting();
     initCompareMode();
+    initFavoritesFilter();
     updateFavoritesUI();
 }
 
@@ -730,16 +739,28 @@ function renderClassCards() {
 
     container.innerHTML = '';
     let totalStudents = 0;
+    let displayedStudents = 0;
 
     ['A', 'B', 'C', 'D'].forEach(className => {
-        const students = getStudentsByClass(1, className);
+        let students = getStudentsByClass(1, className);
         totalStudents += students.length;
+
+        // Filter by favorites if enabled
+        if (state.showFavoritesOnly) {
+            students = students.filter(s => state.favorites.includes(s.id));
+        }
+        displayedStudents += students.length;
+
         const card = createClassCard(1, className, getSortedStudents(students, state.currentSort));
         container.appendChild(card);
     });
 
     const countEl = document.getElementById('first-year-count');
-    if (countEl) countEl.textContent = `${totalStudents} total`;
+    if (countEl) {
+        countEl.textContent = state.showFavoritesOnly
+            ? `${displayedStudents} favorites`
+            : `${totalStudents} total`;
+    }
 
     // Reattach hover sounds to new elements
     attachHoverSounds(container);
@@ -969,6 +990,29 @@ function updateFavoritesUI() {
         favBtn.textContent = isFav ? '★' : '☆';
         favBtn.classList.toggle('active', isFav);
     }
+
+    // Update filter button state
+    const filterBtn = document.getElementById('favorites-filter');
+    if (filterBtn) {
+        filterBtn.classList.toggle('active', state.showFavoritesOnly);
+    }
+}
+
+function initFavoritesFilter() {
+    const filterBtn = document.getElementById('favorites-filter');
+    if (filterBtn) {
+        filterBtn.addEventListener('click', () => {
+            toggleFavoritesFilter();
+        });
+        filterBtn.addEventListener('mouseenter', () => playSound('hover'));
+    }
+}
+
+function toggleFavoritesFilter() {
+    state.showFavoritesOnly = !state.showFavoritesOnly;
+    playSound('select');
+    updateFavoritesUI();
+    renderClassCards();
 }
 
 // ========================================

@@ -837,7 +837,7 @@ body::before {
 }
 
 .app-icon:hover {
-    transform: scale(1.1) translateY(-5px);
+    /* Glitch effect handled by JS */
 }
 
 .app-icon:active {
@@ -881,16 +881,8 @@ body::before {
     transition: left 0.5s ease;
 }
 
-.app-icon:hover .app-icon-image::before {
-    left: 100%;
-}
-
 .app-icon:hover .app-icon-image {
     border-color: var(--cyan);
-    box-shadow:
-        0 0 30px var(--cyan-glow),
-        0 0 60px rgba(0, 245, 255, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .app-icon-image svg {
@@ -1169,8 +1161,37 @@ body::before {
     flex-wrap: wrap;
 }
 
-.dashboard-header .search-container {
+.dashboard-header .filter-btn {
     margin-left: auto;
+}
+
+/* Favorites Filter Button */
+.filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: var(--class-a);
+    color: var(--class-a);
+}
+
+.filter-btn.active {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--class-a);
+    color: var(--class-a);
+    box-shadow: 0 0 15px var(--class-a-glow);
 }
 
 /* Sort Controls */
