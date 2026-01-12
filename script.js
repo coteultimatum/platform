@@ -16,11 +16,84 @@ let navigationHistory = [];
 let mouseX = 0;
 let mouseY = 0;
 
+// Audio context for sound effects
+let audioContext = null;
+
+// ========================================
+// SOUND EFFECTS
+// ========================================
+
+function initAudio() {
+    // Initialize on first user interaction
+    document.addEventListener('click', () => {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }, { once: true });
+}
+
+function playSound(type) {
+    if (!audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    switch (type) {
+        case 'click':
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.05);
+            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.05);
+            break;
+
+        case 'unlock':
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.15);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+            break;
+
+        case 'open':
+            oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(700, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+            break;
+
+        case 'back':
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.08);
+            gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.08);
+            break;
+
+        case 'select':
+            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.03);
+            break;
+    }
+}
+
 // ========================================
 // INITIALIZATION
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    initAudio();
     createStarfield();
     createParticles();
     initShootingStars();
@@ -145,19 +218,12 @@ function initGlitchEffects() {
 function triggerRandomGlitch() {
     const glitchType = Math.random();
 
-    if (glitchType < 0.5) {
+    if (glitchType < 0.7) {
         // Glitch overlay flash
         const overlay = document.getElementById('glitch-overlay');
         if (overlay) {
             overlay.classList.add('active');
             setTimeout(() => overlay.classList.remove('active'), 150);
-        }
-    } else if (glitchType < 0.8) {
-        // Scan line glitch
-        const scanLine = document.getElementById('scan-glitch');
-        if (scanLine) {
-            scanLine.classList.add('active');
-            setTimeout(() => scanLine.classList.remove('active'), 400);
         }
     } else {
         // Screen flicker
@@ -398,6 +464,7 @@ function initLockScreen() {
     const lockScreen = document.getElementById('lock-screen');
     if (lockScreen) {
         lockScreen.addEventListener('click', () => {
+            playSound('unlock');
             navigationHistory = []; // Clear history when unlocking
             showScreen('home-screen');
         });
@@ -412,6 +479,7 @@ function initHomeScreen() {
     // App icons
     document.querySelectorAll('.app-icon').forEach(icon => {
         icon.addEventListener('click', () => {
+            playSound('open');
             const appId = icon.dataset.app;
             openApp(appId);
         });
@@ -422,6 +490,7 @@ function initHomeScreen() {
     if (lockBtn) {
         lockBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            playSound('back');
             navigationHistory = []; // Clear history when locking
             showScreen('lock-screen', false);
         });
@@ -446,8 +515,10 @@ function initNavButtons() {
         btn.addEventListener('click', () => {
             const action = btn.dataset.action;
             if (action === 'back') {
+                playSound('back');
                 goBack();
             } else if (action === 'home') {
+                playSound('back');
                 navigationHistory = []; // Clear history when going home
                 showScreen('home-screen', false);
             }
@@ -551,6 +622,7 @@ function initSorting() {
     const sortButtons = document.querySelectorAll('.sort-btn');
     sortButtons.forEach(btn => {
         btn.addEventListener('click', () => {
+            playSound('select');
             // Update active state
             sortButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -729,6 +801,7 @@ function createClassCard(year, className, students) {
     card.querySelectorAll('.student-preview').forEach(preview => {
         preview.addEventListener('click', (e) => {
             e.stopPropagation();
+            playSound('click');
             const studentId = preview.dataset.studentId;
             const student = studentLookup[studentId];
             if (student) {
@@ -757,6 +830,7 @@ function createClassCard(year, className, students) {
 
     // Card click goes to class view
     card.addEventListener('click', () => {
+        playSound('click');
         showClassView(year, className);
     });
 
@@ -824,6 +898,7 @@ function createStudentCard(student) {
     const card = document.createElement('div');
     card.className = 'student-card';
     card.addEventListener('click', () => {
+        playSound('click');
         showStudentProfile(student);
     });
 
