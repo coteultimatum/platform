@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createParticles();
     updateTime();
     setInterval(updateTime, 1000);
+    initBootScreen();
     initLockScreen();
     initHomeScreen();
     initNavButtons();
@@ -34,6 +35,33 @@ document.addEventListener('DOMContentLoaded', () => {
     initParallax();
     initTypingEffect();
 });
+
+// ========================================
+// BOOT SCREEN (SKIP ON CLICK)
+// ========================================
+
+function initBootScreen() {
+    const bootScreen = document.getElementById('boot-screen');
+    if (!bootScreen) return;
+
+    // Click to skip boot animation
+    bootScreen.addEventListener('click', () => {
+        bootScreen.style.animation = 'none';
+        bootScreen.style.opacity = '0';
+        bootScreen.style.pointerEvents = 'none';
+    });
+
+    // Also skip on any key press
+    const skipOnKey = (e) => {
+        if (bootScreen.style.opacity !== '0') {
+            bootScreen.style.animation = 'none';
+            bootScreen.style.opacity = '0';
+            bootScreen.style.pointerEvents = 'none';
+        }
+        document.removeEventListener('keydown', skipOnKey);
+    };
+    document.addEventListener('keydown', skipOnKey);
+}
 
 // ========================================
 // STARFIELD & PARTICLES
