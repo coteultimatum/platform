@@ -195,6 +195,7 @@ body::before {
     font-weight: 400;
     color: var(--crimson-light);
     letter-spacing: 0.5em;
+    margin-right: -0.5em; /* Compensate for letter-spacing */
     margin-top: -1.5rem;
     margin-bottom: 2.5rem;
     opacity: 0;
@@ -423,8 +424,10 @@ body::before {
     position: absolute;
     width: 60px;
     height: 60px;
-    border: 2px solid var(--cyan-subtle);
+    border: 2px solid var(--cyan-dim);
     pointer-events: none;
+    opacity: 0;
+    animation: bracketFadeIn 0.8s ease 2.5s forwards;
 }
 
 .lock-content::before {
@@ -432,6 +435,7 @@ body::before {
     left: 0;
     border-right: none;
     border-bottom: none;
+    transform-origin: top left;
 }
 
 .lock-content::after {
@@ -439,6 +443,19 @@ body::before {
     right: 0;
     border-left: none;
     border-top: none;
+    transform-origin: bottom right;
+    animation-delay: 2.7s;
+}
+
+@keyframes bracketFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .lock-time {
@@ -472,6 +489,7 @@ body::before {
         0 0 40px var(--cyan-glow),
         0 0 60px rgba(0, 245, 255, 0.2);
     letter-spacing: 0.4em;
+    margin-right: -0.4em; /* Compensate for letter-spacing on last letter */
     margin-bottom: 0.5rem;
     text-transform: uppercase;
     position: relative;
@@ -548,6 +566,7 @@ body::before {
     font-weight: 400;
     color: var(--crimson-light);
     letter-spacing: 0.6em;
+    margin-right: -0.6em; /* Compensate for letter-spacing */
     text-shadow: 0 0 20px var(--crimson-glow);
     text-transform: uppercase;
 }
@@ -724,22 +743,43 @@ body::before {
     gap: 2rem;
     padding: 2rem 3rem;
     background: linear-gradient(135deg, rgba(10, 20, 40, 0.7) 0%, rgba(15, 26, 46, 0.6) 100%);
-    border: 1px solid rgba(77, 201, 230, 0.15);
+    border: 1px solid rgba(77, 201, 230, 0.2);
     border-radius: var(--border-radius-lg);
     backdrop-filter: blur(20px);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 0 30px rgba(77, 201, 230, 0.1);
 }
 
-/* Subtle top shine */
+/* Animated border glow */
 .app-dock::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--cyan), transparent, var(--crimson-light), transparent, var(--cyan));
+    background-size: 400% 400%;
+    border-radius: calc(var(--border-radius-lg) + 2px);
+    z-index: -1;
+    opacity: 0.3;
+    animation: borderGlow 8s ease infinite;
+}
+
+.app-dock::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(77, 201, 230, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(77, 201, 230, 0.4), transparent);
+}
+
+@keyframes borderGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
 }
 
 .app-icon {
@@ -884,6 +924,18 @@ body::before {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+.key-hint:hover {
+    color: var(--text-secondary);
+}
+
+.key-hint:hover .key {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
 }
 
 .key {
@@ -897,6 +949,7 @@ body::before {
     border-radius: 4px;
     font-family: 'Orbitron', monospace;
     font-size: 0.7rem;
+    transition: all 0.2s ease;
 }
 
 /* ========================================
@@ -1024,6 +1077,19 @@ body::before {
     text-shadow: 0 0 20px var(--cyan-glow);
     flex: 1;
     text-transform: uppercase;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-time {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
 }
 
 .app-subtitle {

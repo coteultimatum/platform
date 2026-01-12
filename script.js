@@ -173,10 +173,14 @@ function updateTime() {
     const lockTime = document.getElementById('lock-time');
     const lockDate = document.getElementById('lock-date');
     const homeTime = document.getElementById('home-time');
+    const oaaTime = document.getElementById('oaa-time');
+    const eventsTime = document.getElementById('events-time');
 
     if (lockTime) lockTime.textContent = timeStr;
     if (lockDate) lockDate.textContent = dateStr;
     if (homeTime) homeTime.textContent = timeStr;
+    if (oaaTime) oaaTime.textContent = timeStr;
+    if (eventsTime) eventsTime.textContent = timeStr;
 }
 
 // ========================================
