@@ -239,26 +239,54 @@
             </div>
         </div>
         <div class="events-content">
-            <div class="no-event" id="no-event">
-                <div class="no-event-radar">
-                    <div class="radar-ring"></div>
-                    <div class="radar-ring"></div>
-                    <div class="radar-ring"></div>
-                    <div class="radar-sweep"></div>
+            <!-- Current Event Section -->
+            <div class="events-section">
+                <div class="events-section-header">
+                    <div class="section-indicator standby"></div>
+                    <h2 class="events-section-title">CURRENT EXAM</h2>
                 </div>
-                <div class="no-event-content">
-                    <div class="no-event-status">MONITORING</div>
-                    <h2>No Active Event</h2>
-                    <p>The school has not announced any special exams at this time.</p>
-                    <div class="no-event-hint">Events will appear here when announced by the administration.</div>
+                <div class="current-event-card" id="current-event">
+                    <div class="standby-state">
+                        <div class="standby-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div class="standby-text">
+                            <h3>STANDBY</h3>
+                            <p>No special exam is currently active</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="event-card" id="event-card" style="display: none;">
-                <div class="event-badge">ACTIVE</div>
-                <h2 class="event-title" id="event-title">Special Exam</h2>
-                <p class="event-description" id="event-description">Event description here.</p>
-                <div class="event-details" id="event-details">
-                    <!-- Event details populated by JS -->
+
+            <!-- Upcoming Section -->
+            <div class="events-section">
+                <div class="events-section-header">
+                    <div class="section-indicator upcoming"></div>
+                    <h2 class="events-section-title">UPCOMING</h2>
+                </div>
+                <div class="upcoming-list">
+                    <div class="upcoming-empty">
+                        <p>No scheduled exams</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Past Events Section -->
+            <div class="events-section">
+                <div class="events-section-header">
+                    <div class="section-indicator past"></div>
+                    <h2 class="events-section-title">HISTORY</h2>
+                </div>
+                <div class="past-events-list">
+                    <div class="past-event-item">
+                        <div class="past-event-date">—</div>
+                        <div class="past-event-info">
+                            <span class="past-event-name">No past exams recorded</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
