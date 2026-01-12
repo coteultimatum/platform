@@ -1,122 +1,194 @@
 // ========================================
 // COTE: ULTIMATUM - OAA Website Script
-// PC-Optimized Version with Enhanced Features
+// Comprehensive Rewrite with Unified Systems
 // ========================================
 
-// State
-let currentScreen = 'lock-screen';
-let currentClass = null;
-let currentStudent = null;
-let currentOAAView = 'oaa-dashboard';
+// ========================================
+// STATE MANAGEMENT
+// ========================================
 
-// Navigation history for proper back navigation
-let navigationHistory = [];
+const state = {
+    currentScreen: 'lock-screen',
+    currentClass: null,
+    currentStudent: null,
+    currentOAAView: 'oaa-dashboard',
+    currentSort: 'default',
+    navigationHistory: [],
+    keysHeld: {},
+    mouseX: 0,
+    mouseY: 0,
+    favorites: JSON.parse(localStorage.getItem('cote-favorites') || '[]'),
+    compareList: [],
+    compareMode: false
+};
 
-// Mouse position for parallax
-let mouseX = 0;
-let mouseY = 0;
-
-// Audio context for sound effects
+// Audio context
 let audioContext = null;
 
-// Track held keys to prevent repeat
-let keysHeld = {};
-
 // ========================================
-// SOUND EFFECTS
+// SOUND DESIGN SYSTEM
 // ========================================
-
-function initAudio() {
-    // Initialize on first user interaction
-    document.addEventListener('click', () => {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-    }, { once: true });
-}
+// Consistent sound categories:
+// - 'boot'    : System startup (first interaction only)
+// - 'unlock'  : Unlocking/accessing (subsequent unlocks)
+// - 'open'    : Opening apps, navigating forward, expanding
+// - 'back'    : Going back, closing, collapsing
+// - 'select'  : UI state changes (sort, focus, toggle)
+// - 'click'   : Primary actions (selecting items, confirming)
+// - 'hover'   : Hover feedback (very subtle)
+// - 'type'    : Keyboard input in fields
+// - 'success' : Positive feedback (favoriting, etc.)
+// - 'error'   : Negative feedback
 
 function playSound(type) {
     if (!audioContext) return;
 
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
+    const now = audioContext.currentTime;
+
     switch (type) {
-        case 'click':
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.05);
-            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.05);
+        case 'boot':
+            // Rising three-tone chime
+            oscillator.frequency.setValueAtTime(300, now);
+            oscillator.frequency.setValueAtTime(450, now + 0.15);
+            oscillator.frequency.setValueAtTime(600, now + 0.3);
+            gainNode.gain.setValueAtTime(0.08, now);
+            gainNode.gain.setValueAtTime(0.1, now + 0.15);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            oscillator.start(now);
+            oscillator.stop(now + 0.5);
             break;
 
         case 'unlock':
-            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.15);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
+            // Rising sweep
+            oscillator.frequency.setValueAtTime(400, now);
+            oscillator.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            oscillator.start(now);
+            oscillator.stop(now + 0.2);
             break;
 
         case 'open':
-            oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(700, audioContext.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.1);
+            // Rising tone
+            oscillator.frequency.setValueAtTime(500, now);
+            oscillator.frequency.exponentialRampToValueAtTime(700, now + 0.1);
+            gainNode.gain.setValueAtTime(0.08, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+            oscillator.start(now);
+            oscillator.stop(now + 0.1);
             break;
 
         case 'back':
-            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.08);
-            gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.08);
+            // Falling tone
+            oscillator.frequency.setValueAtTime(600, now);
+            oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+            gainNode.gain.setValueAtTime(0.06, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            oscillator.start(now);
+            oscillator.stop(now + 0.08);
             break;
 
         case 'select':
-            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.03);
+            // Quick high blip
+            oscillator.frequency.setValueAtTime(1000, now);
+            gainNode.gain.setValueAtTime(0.05, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+            oscillator.start(now);
+            oscillator.stop(now + 0.03);
             break;
 
-        case 'boot':
-            // Two-tone boot sound
-            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(450, audioContext.currentTime + 0.15);
-            oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.3);
-            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime + 0.15);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-            break;
-
-        case 'type':
-            oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.02, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.02);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.02);
+        case 'click':
+            // Medium blip
+            oscillator.frequency.setValueAtTime(800, now);
+            oscillator.frequency.exponentialRampToValueAtTime(600, now + 0.05);
+            gainNode.gain.setValueAtTime(0.08, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+            oscillator.start(now);
+            oscillator.stop(now + 0.05);
             break;
 
         case 'hover':
-            oscillator.frequency.setValueAtTime(1400, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.015, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.015);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.015);
+            // Very subtle tick
+            oscillator.frequency.setValueAtTime(1400, now);
+            gainNode.gain.setValueAtTime(0.012, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
+            oscillator.start(now);
+            oscillator.stop(now + 0.012);
+            break;
+
+        case 'type':
+            // Soft keystroke
+            oscillator.frequency.setValueAtTime(1200, now);
+            gainNode.gain.setValueAtTime(0.02, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+            oscillator.start(now);
+            oscillator.stop(now + 0.02);
+            break;
+
+        case 'success':
+            // Pleasant two-tone
+            oscillator.frequency.setValueAtTime(600, now);
+            oscillator.frequency.setValueAtTime(900, now + 0.1);
+            gainNode.gain.setValueAtTime(0.08, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            oscillator.start(now);
+            oscillator.stop(now + 0.2);
+            break;
+
+        case 'error':
+            // Low buzz
+            oscillator.frequency.setValueAtTime(200, now);
+            oscillator.type = 'square';
+            gainNode.gain.setValueAtTime(0.05, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            oscillator.start(now);
+            oscillator.stop(now + 0.15);
             break;
     }
+}
+
+// ========================================
+// GLITCH EFFECT SYSTEM
+// ========================================
+
+function triggerGlitch(element, duration = 150) {
+    if (!element) return;
+    element.classList.add('glitching');
+    setTimeout(() => element.classList.remove('glitching'), duration);
+}
+
+function triggerScreenGlitch() {
+    const overlay = document.getElementById('glitch-overlay');
+    if (overlay) {
+        overlay.classList.add('active');
+        setTimeout(() => overlay.classList.remove('active'), 150);
+    }
+}
+
+function triggerScreenFlicker() {
+    document.body.classList.add('screen-flicker');
+    setTimeout(() => document.body.classList.remove('screen-flicker'), 100);
+}
+
+function initGlitchEffects() {
+    // Random ambient glitches
+    function scheduleGlitch() {
+        const delay = Math.random() * 20000 + 15000;
+        setTimeout(() => {
+            if (Math.random() < 0.7) {
+                triggerScreenGlitch();
+            } else {
+                triggerScreenFlicker();
+            }
+            scheduleGlitch();
+        }, delay);
+    }
+    setTimeout(scheduleGlitch, 8000);
 }
 
 // ========================================
@@ -124,7 +196,6 @@ function playSound(type) {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    initAudio();
     createStarfield();
     createParticles();
     initShootingStars();
@@ -136,10 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavButtons();
     initOAAApp();
     initKeyboardNav();
-    initRippleEffect();
-    initParallax();
     initTypingEffect();
-    initHoverSounds();
+    initParallax();
 });
 
 // ========================================
@@ -150,37 +219,26 @@ function createStarfield() {
     const starfield = document.getElementById('starfield');
     if (!starfield) return;
 
-    const starCount = 100; // Increased for better effect
-
-    for (let i = 0; i < starCount; i++) {
+    for (let i = 0; i < 100; i++) {
         const star = document.createElement('div');
         star.className = 'star';
-
         star.style.left = Math.random() * 100 + '%';
         star.style.top = Math.random() * 100 + '%';
-
         const size = Math.random() * 2.5 + 0.5;
         star.style.width = size + 'px';
         star.style.height = size + 'px';
+        star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+        star.style.setProperty('--opacity', Math.random() * 0.5 + 0.4);
+        star.style.setProperty('--depth', Math.random());
+        star.style.animationDelay = (Math.random() * 5) + 's';
 
-        const duration = Math.random() * 3 + 2;
-        const delay = Math.random() * 5;
-        star.style.setProperty('--duration', duration + 's');
-        star.style.setProperty('--opacity', Math.random() * 0.5 + 0.4); // Increased visibility
-        star.style.setProperty('--depth', Math.random()); // For parallax
-        star.style.animationDelay = delay + 's';
-
-        // 20% chance of cyan-tinted star
         if (Math.random() < 0.2) {
             star.style.background = '#4dc9e6';
             star.style.boxShadow = '0 0 6px rgba(77, 201, 230, 0.8)';
-        }
-        // 5% chance of crimson-tinted star
-        else if (Math.random() < 0.05) {
+        } else if (Math.random() < 0.05) {
             star.style.background = '#9a2e48';
             star.style.boxShadow = '0 0 6px rgba(154, 46, 72, 0.8)';
         }
-
         starfield.appendChild(star);
     }
 }
@@ -189,146 +247,71 @@ function createParticles() {
     const starfield = document.getElementById('starfield');
     if (!starfield) return;
 
-    const particleCount = 15;
-
-    for (let i = 0; i < particleCount; i++) {
+    for (let i = 0; i < 15; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
-
         particle.style.left = Math.random() * 100 + '%';
-
         const size = Math.random() * 4 + 2;
         particle.style.width = size + 'px';
         particle.style.height = size + 'px';
-
-        const duration = Math.random() * 15 + 12;
-        const delay = Math.random() * 20;
-        particle.style.setProperty('--duration', duration + 's');
+        particle.style.setProperty('--duration', (Math.random() * 15 + 12) + 's');
         particle.style.setProperty('--opacity', Math.random() * 0.4 + 0.15);
-        particle.style.animationDelay = delay + 's';
-
+        particle.style.animationDelay = (Math.random() * 20) + 's';
         starfield.appendChild(particle);
     }
 }
 
-// ========================================
-// SHOOTING STARS
-// ========================================
-
 function initShootingStars() {
-    // Create shooting stars at random intervals
     function scheduleShootingStar() {
-        const delay = Math.random() * 8000 + 4000; // 4-12 seconds between shooting stars
         setTimeout(() => {
             createShootingStar();
             scheduleShootingStar();
-        }, delay);
+        }, Math.random() * 8000 + 4000);
     }
-
-    // Start after initial delay
     setTimeout(scheduleShootingStar, 2000);
-}
-
-// ========================================
-// GLITCH EFFECTS
-// ========================================
-
-function initGlitchEffects() {
-    // Random glitch at intervals
-    function scheduleGlitch() {
-        const delay = Math.random() * 20000 + 15000; // 15-35 seconds between glitches
-        setTimeout(() => {
-            triggerRandomGlitch();
-            scheduleGlitch();
-        }, delay);
-    }
-
-    // Start after initial delay
-    setTimeout(scheduleGlitch, 8000);
-}
-
-function triggerRandomGlitch() {
-    const glitchType = Math.random();
-
-    if (glitchType < 0.7) {
-        // Glitch overlay flash
-        const overlay = document.getElementById('glitch-overlay');
-        if (overlay) {
-            overlay.classList.add('active');
-            setTimeout(() => overlay.classList.remove('active'), 150);
-        }
-    } else {
-        // Screen flicker
-        document.body.classList.add('screen-flicker');
-        setTimeout(() => document.body.classList.remove('screen-flicker'), 100);
-    }
 }
 
 function createShootingStar() {
     const starfield = document.getElementById('starfield');
     if (!starfield) return;
 
-    const shootingStar = document.createElement('div');
-    shootingStar.className = 'shooting-star';
-
-    // Random starting position (upper portion of screen)
-    const startX = Math.random() * 80 + 10; // 10-90% from left
-    const startY = Math.random() * 30 + 5;  // 5-35% from top
-
-    shootingStar.style.left = startX + '%';
-    shootingStar.style.top = startY + '%';
-
-    // Angle: mostly diagonal down-right, with some variation
-    const angle = Math.random() * 30 + 25; // 25-55 degrees
-    shootingStar.style.setProperty('--angle', angle + 'deg');
-
-    // Distance traveled
+    const star = document.createElement('div');
+    star.className = 'shooting-star';
+    star.style.left = (Math.random() * 80 + 10) + '%';
+    star.style.top = (Math.random() * 30 + 5) + '%';
+    const angle = Math.random() * 30 + 25;
+    star.style.setProperty('--angle', angle + 'deg');
     const distance = Math.random() * 200 + 150;
-    const distanceX = distance * Math.cos(angle * Math.PI / 180);
-    const distanceY = distance * Math.sin(angle * Math.PI / 180);
-    shootingStar.style.setProperty('--distance-x', distanceX + 'px');
-    shootingStar.style.setProperty('--distance-y', distanceY + 'px');
-
-    // Tail length and duration
-    const tailLength = Math.random() * 60 + 40;
-    shootingStar.style.setProperty('--tail-length', tailLength + 'px');
-    shootingStar.style.setProperty('--duration', '0.8s');
-
-    starfield.appendChild(shootingStar);
-
-    // Remove after animation
-    setTimeout(() => {
-        shootingStar.remove();
-    }, 1000);
+    star.style.setProperty('--distance-x', (distance * Math.cos(angle * Math.PI / 180)) + 'px');
+    star.style.setProperty('--distance-y', (distance * Math.sin(angle * Math.PI / 180)) + 'px');
+    star.style.setProperty('--tail-length', (Math.random() * 60 + 40) + 'px');
+    star.style.setProperty('--duration', '0.8s');
+    starfield.appendChild(star);
+    setTimeout(() => star.remove(), 1000);
 }
 
 // ========================================
-// PARALLAX EFFECT
+// PARALLAX
 // ========================================
 
 function initParallax() {
     document.addEventListener('mousemove', (e) => {
-        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        state.mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        state.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
         updateParallax();
     });
 }
 
 function updateParallax() {
-    const starfield = document.getElementById('starfield');
-    if (!starfield) return;
-
-    const stars = starfield.querySelectorAll('.star');
+    const stars = document.querySelectorAll('.star');
     stars.forEach(star => {
         const depth = parseFloat(star.style.getPropertyValue('--depth')) || 0.5;
-        const moveX = mouseX * 15 * depth;
-        const moveY = mouseY * 15 * depth;
-        star.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        star.style.transform = `translate(${state.mouseX * 15 * depth}px, ${state.mouseY * 15 * depth}px)`;
     });
 }
 
 // ========================================
-// TYPING EFFECT WITH ROTATING QUOTES
+// TYPING EFFECT
 // ========================================
 
 const quotes = [
@@ -342,13 +325,11 @@ const quotes = [
     { text: 'It doesn\'t matter what needs to be sacrificed. As long as I win in the end, that\'s all that matters.', attribution: '- Kiyotaka Ayanokōji' }
 ];
 
-let currentTypingTimeout = null;
+let typingTimeout = null;
 
 function initTypingEffect() {
     const quoteText = document.querySelector('.quote-text');
-    if (quoteText) {
-        quoteText.textContent = '';
-    }
+    if (quoteText) quoteText.textContent = '';
 }
 
 function triggerQuoteTyping() {
@@ -356,25 +337,16 @@ function triggerQuoteTyping() {
     const quoteAttribution = document.querySelector('.quote-attribution');
     if (!quoteText) return;
 
-    // Clear any ongoing typing
-    if (currentTypingTimeout) {
-        clearTimeout(currentTypingTimeout);
-    }
-
-    // Select random quote
+    if (typingTimeout) clearTimeout(typingTimeout);
     const quote = quotes[Math.floor(Math.random() * quotes.length)];
-
-    // Reset and start fresh
     quoteText.textContent = '';
     if (quoteAttribution) {
         quoteAttribution.textContent = quote.attribution;
         quoteAttribution.style.opacity = '0';
     }
 
-    // Small delay before typing starts
-    currentTypingTimeout = setTimeout(() => {
+    typingTimeout = setTimeout(() => {
         typeText(quoteText, quote.text, 0, () => {
-            // Show attribution after typing completes
             if (quoteAttribution) {
                 quoteAttribution.style.transition = 'opacity 0.5s ease';
                 quoteAttribution.style.opacity = '1';
@@ -386,7 +358,7 @@ function triggerQuoteTyping() {
 function typeText(element, text, index, onComplete) {
     if (index < text.length) {
         element.textContent += text.charAt(index);
-        currentTypingTimeout = setTimeout(() => typeText(element, text, index + 1, onComplete), 30);
+        typingTimeout = setTimeout(() => typeText(element, text, index + 1, onComplete), 30);
     } else if (onComplete) {
         onComplete();
     }
@@ -398,92 +370,63 @@ function typeText(element, text, index, onComplete) {
 
 function updateTime() {
     const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    });
-    const dateStr = now.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric'
-    });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-    const lockTime = document.getElementById('lock-time');
+    ['lock-time', 'home-time', 'oaa-time', 'events-time'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = timeStr;
+    });
     const lockDate = document.getElementById('lock-date');
-    const homeTime = document.getElementById('home-time');
-    const oaaTime = document.getElementById('oaa-time');
-    const eventsTime = document.getElementById('events-time');
-
-    if (lockTime) lockTime.textContent = timeStr;
     if (lockDate) lockDate.textContent = dateStr;
-    if (homeTime) homeTime.textContent = timeStr;
-    if (oaaTime) oaaTime.textContent = timeStr;
-    if (eventsTime) eventsTime.textContent = timeStr;
 }
 
 // ========================================
-// SCREEN NAVIGATION (with history)
+// SCREEN NAVIGATION
 // ========================================
 
 function showScreen(screenId, addToHistory = true) {
-    // Add current state to history before changing
-    if (addToHistory && currentScreen !== screenId) {
-        navigationHistory.push({
-            screen: currentScreen,
-            oaaView: currentOAAView,
-            classData: currentClass ? { ...currentClass } : null
+    if (addToHistory && state.currentScreen !== screenId) {
+        state.navigationHistory.push({
+            screen: state.currentScreen,
+            oaaView: state.currentOAAView,
+            classData: state.currentClass ? { ...state.currentClass } : null
         });
     }
 
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById(screenId);
     if (target) {
         target.classList.add('active');
-        currentScreen = screenId;
-
-        // Trigger quote typing when home screen is shown
-        if (screenId === 'home-screen') {
-            triggerQuoteTyping();
-        }
+        state.currentScreen = screenId;
+        if (screenId === 'home-screen') triggerQuoteTyping();
     }
 }
 
 function goBack() {
-    // If we have history, use it
-    if (navigationHistory.length > 0) {
-        const previous = navigationHistory.pop();
-
-        if (previous.screen === 'oaa-app') {
+    if (state.navigationHistory.length > 0) {
+        const prev = state.navigationHistory.pop();
+        if (prev.screen === 'oaa-app') {
             showScreen('oaa-app', false);
-
-            // Restore the correct OAA view
-            if (previous.oaaView === 'oaa-class' && previous.classData) {
-                // Restore class view
-                showClassView(previous.classData.year, previous.classData.className, false);
+            if (prev.oaaView === 'oaa-class' && prev.classData) {
+                showClassView(prev.classData.year, prev.classData.className, false);
             } else {
-                showOAAView(previous.oaaView, false);
+                showOAAView(prev.oaaView, false);
             }
         } else {
-            showScreen(previous.screen, false);
+            showScreen(prev.screen, false);
         }
         return;
     }
 
-    // Fallback logic if no history
-    if (currentScreen === 'oaa-app') {
-        if (currentOAAView === 'oaa-profile') {
-            showOAAView('oaa-class', false);
-        } else if (currentOAAView === 'oaa-class') {
-            showOAAView('oaa-dashboard', false);
-        } else {
-            showScreen('home-screen', false);
-        }
-    } else if (currentScreen === 'events-app') {
+    // Fallback
+    if (state.currentScreen === 'oaa-app') {
+        if (state.currentOAAView === 'oaa-profile') showOAAView('oaa-class', false);
+        else if (state.currentOAAView === 'oaa-class') showOAAView('oaa-dashboard', false);
+        else showScreen('home-screen', false);
+    } else if (state.currentScreen === 'events-app') {
         showScreen('home-screen', false);
-    } else if (currentScreen === 'home-screen') {
+    } else if (state.currentScreen === 'home-screen') {
         showScreen('lock-screen', false);
     }
 }
@@ -495,18 +438,19 @@ function goBack() {
 function initLockScreen() {
     const lockScreen = document.getElementById('lock-screen');
     if (lockScreen) {
-        lockScreen.addEventListener('click', () => {
-            // Initialize audio on first interaction and play boot sound
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                playSound('boot');
-            } else {
-                playSound('unlock');
-            }
-            navigationHistory = []; // Clear history when unlocking
-            showScreen('home-screen');
-        });
+        lockScreen.addEventListener('click', handleUnlock);
     }
+}
+
+function handleUnlock() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        playSound('boot');
+    } else {
+        playSound('unlock');
+    }
+    state.navigationHistory = [];
+    showScreen('home-screen');
 }
 
 // ========================================
@@ -514,22 +458,23 @@ function initLockScreen() {
 // ========================================
 
 function initHomeScreen() {
-    // App icons
     document.querySelectorAll('.app-icon').forEach(icon => {
+        icon.addEventListener('mouseenter', () => playSound('hover'));
         icon.addEventListener('click', () => {
             playSound('open');
+            triggerGlitch(icon.querySelector('.app-icon-image'));
             const appId = icon.dataset.app;
-            openApp(appId);
+            setTimeout(() => openApp(appId), 50);
         });
     });
 
-    // Lock button
     const lockBtn = document.getElementById('lock-btn');
     if (lockBtn) {
+        lockBtn.addEventListener('mouseenter', () => playSound('hover'));
         lockBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             playSound('back');
-            navigationHistory = []; // Clear history when locking
+            state.navigationHistory = [];
             showScreen('lock-screen', false);
         });
     }
@@ -550,6 +495,7 @@ function openApp(appId) {
 
 function initNavButtons() {
     document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('mouseenter', () => playSound('hover'));
         btn.addEventListener('click', () => {
             const action = btn.dataset.action;
             if (action === 'back') {
@@ -557,15 +503,9 @@ function initNavButtons() {
                 goBack();
             } else if (action === 'home') {
                 playSound('back');
-                navigationHistory = []; // Clear history when going home
+                state.navigationHistory = [];
                 showScreen('home-screen', false);
             }
-        });
-    });
-
-    document.querySelectorAll('.back-link').forEach(link => {
-        link.addEventListener('click', () => {
-            goBack();
         });
     });
 }
@@ -576,31 +516,26 @@ function initNavButtons() {
 
 function initKeyboardNav() {
     document.addEventListener('keydown', (e) => {
-        // Prevent key repeat for navigation keys
-        if (keysHeld[e.key]) return;
-        keysHeld[e.key] = true;
+        if (state.keysHeld[e.key]) return;
+        state.keysHeld[e.key] = true;
 
         // Enter to unlock
-        if (e.key === 'Enter' && currentScreen === 'lock-screen') {
-            // Initialize audio on first interaction and play boot sound
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                playSound('boot');
-            } else {
-                playSound('unlock');
-            }
-            navigationHistory = [];
-            showScreen('home-screen');
+        if (e.key === 'Enter' && state.currentScreen === 'lock-screen') {
+            handleUnlock();
             return;
         }
 
-        // ESC to go back (but not if in search)
+        // ESC to go back
         if (e.key === 'Escape') {
             const searchInput = document.querySelector('.search-input');
             if (searchInput && document.activeElement === searchInput) {
                 searchInput.blur();
                 searchInput.value = '';
                 filterStudents('');
+                playSound('back');
+            } else if (state.compareMode) {
+                exitCompareMode();
+                playSound('back');
             } else {
                 playSound('back');
                 goBack();
@@ -608,32 +543,43 @@ function initKeyboardNav() {
             return;
         }
 
-        // Ctrl+K or / to focus search (when in OAA app)
-        if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && currentScreen === 'oaa-app')) {
+        // "/" to focus search (uses 'select' sound - same as clicking it)
+        if (e.key === '/' && state.currentScreen === 'oaa-app' && state.currentOAAView === 'oaa-dashboard') {
             e.preventDefault();
-            playSound('click');
             const searchInput = document.querySelector('.search-input');
-            if (searchInput && currentScreen === 'oaa-app' && currentOAAView === 'oaa-dashboard') {
+            if (searchInput) {
                 searchInput.focus();
+                // Sound plays via focus event
             }
             return;
         }
 
-        // Number keys for apps (from home screen)
-        if (currentScreen === 'home-screen') {
+        // Number keys for apps
+        if (state.currentScreen === 'home-screen') {
             if (e.key === '1') {
                 playSound('open');
-                openApp('oaa');
+                const icon = document.querySelector('.app-icon[data-app="oaa"]');
+                if (icon) triggerGlitch(icon.querySelector('.app-icon-image'));
+                setTimeout(() => openApp('oaa'), 50);
             } else if (e.key === '2') {
                 playSound('open');
-                openApp('events');
+                const icon = document.querySelector('.app-icon[data-app="events"]');
+                if (icon) triggerGlitch(icon.querySelector('.app-icon-image'));
+                setTimeout(() => openApp('events'), 50);
+            }
+        }
+
+        // C key for compare mode toggle
+        if (e.key === 'c' && state.currentScreen === 'oaa-app' &&
+            (state.currentOAAView === 'oaa-dashboard' || state.currentOAAView === 'oaa-class')) {
+            if (!document.activeElement || document.activeElement.tagName !== 'INPUT') {
+                toggleCompareMode();
             }
         }
     });
 
-    // Release key tracking on keyup
     document.addEventListener('keyup', (e) => {
-        keysHeld[e.key] = false;
+        state.keysHeld[e.key] = false;
     });
 }
 
@@ -641,129 +587,94 @@ function initKeyboardNav() {
 // OAA APP
 // ========================================
 
-function showOAAView(viewId, addToHistory = true) {
-    // Add to history if changing views within OAA
-    if (addToHistory && currentOAAView !== viewId) {
-        navigationHistory.push({
-            screen: 'oaa-app',
-            oaaView: currentOAAView,
-            classData: currentClass ? { ...currentClass } : null
-        });
-    }
-
-    document.querySelectorAll('#oaa-app .app-view').forEach(view => {
-        view.classList.remove('active');
-    });
-    const target = document.getElementById(viewId);
-    if (target) {
-        target.classList.add('active');
-        currentOAAView = viewId;
-        // Scroll to top of view
-        target.scrollTop = 0;
-    }
-}
+let studentLookup = {};
 
 function initOAAApp() {
     buildStudentLookup();
     renderClassCards();
     initSearch();
     initSorting();
+    initCompareMode();
+    updateFavoritesUI();
+}
+
+function showOAAView(viewId, addToHistory = true) {
+    if (addToHistory && state.currentOAAView !== viewId) {
+        state.navigationHistory.push({
+            screen: 'oaa-app',
+            oaaView: state.currentOAAView,
+            classData: state.currentClass ? { ...state.currentClass } : null
+        });
+    }
+
+    document.querySelectorAll('#oaa-app .app-view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(viewId);
+    if (target) {
+        target.classList.add('active');
+        state.currentOAAView = viewId;
+        target.scrollTop = 0;
+    }
+}
+
+function buildStudentLookup() {
+    if (typeof studentData === 'undefined') return;
+    studentData.forEach(s => studentLookup[s.id] = s);
 }
 
 // ========================================
-// SORTING FUNCTIONALITY
+// SORTING
 // ========================================
 
-let currentSort = 'default';
-
 function initSorting() {
-    // Dashboard sort buttons
-    const dashboardButtons = document.querySelectorAll('#oaa-dashboard .sort-btn');
-    dashboardButtons.forEach(btn => {
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('mouseenter', () => playSound('hover'));
         btn.addEventListener('click', () => {
             playSound('select');
-            // Update active state on both sets
-            updateAllSortButtons(btn.dataset.sort);
-            currentSort = btn.dataset.sort;
-            renderClassCards();
-        });
-    });
+            const sortValue = btn.dataset.sort;
+            state.currentSort = sortValue;
+            updateAllSortButtons(sortValue);
 
-    // Class view sort buttons
-    const classButtons = document.querySelectorAll('#class-sort-buttons .sort-btn');
-    classButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            playSound('select');
-            // Update active state on both sets
-            updateAllSortButtons(btn.dataset.sort);
-            currentSort = btn.dataset.sort;
-            // Re-render current class view
-            if (currentClass) {
-                showClassView(currentClass.year, currentClass.className, false);
+            if (state.currentOAAView === 'oaa-dashboard') {
+                renderClassCards();
+            } else if (state.currentOAAView === 'oaa-class' && state.currentClass) {
+                showClassView(state.currentClass.year, state.currentClass.className, false);
             }
         });
     });
 }
 
 function updateAllSortButtons(sortValue) {
-    // Update all sort buttons across both views
     document.querySelectorAll('.sort-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.sort === sortValue);
     });
 }
 
 function getSortedStudents(students, sortBy) {
-    if (sortBy === 'default') {
-        return students;
-    }
-
+    if (sortBy === 'default') return students;
     return [...students].sort((a, b) => {
-        let valueA, valueB;
-
-        if (sortBy === 'overall') {
-            valueA = calculateOverallValue(a.stats);
-            valueB = calculateOverallValue(b.stats);
-        } else {
-            valueA = a.stats[sortBy] || 50;
-            valueB = b.stats[sortBy] || 50;
-        }
-
-        return valueB - valueA; // Descending order (highest first)
+        const valueA = sortBy === 'overall' ? calculateOverallValue(a.stats) : (a.stats[sortBy] || 50);
+        const valueB = sortBy === 'overall' ? calculateOverallValue(b.stats) : (b.stats[sortBy] || 50);
+        return valueB - valueA;
     });
 }
 
 function calculateOverallValue(stats) {
-    const values = [
-        stats.academic || 50,
-        stats.intelligence || 50,
-        stats.decision || 50,
-        stats.physical || 50,
-        stats.cooperativeness || 50
-    ];
-    return values.reduce((a, b) => a + b, 0) / values.length;
+    return (stats.academic + stats.intelligence + stats.decision + stats.physical + stats.cooperativeness) / 5;
 }
 
 // ========================================
-// SEARCH FUNCTIONALITY
+// SEARCH
 // ========================================
 
 function initSearch() {
-    const searchContainer = document.querySelector('.search-container');
-    if (!searchContainer) return;
-
-    const searchInput = searchContainer.querySelector('.search-input');
+    const searchInput = document.querySelector('.search-input');
     if (!searchInput) return;
 
-    searchInput.addEventListener('focus', () => {
-        playSound('select');
-    });
-
+    searchInput.addEventListener('focus', () => playSound('select'));
     searchInput.addEventListener('input', (e) => {
         playSound('type');
-        const query = e.target.value.toLowerCase().trim();
-        filterStudents(query);
+        filterStudents(e.target.value.toLowerCase().trim());
     });
-
     searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             searchInput.value = '';
@@ -775,14 +686,10 @@ function initSearch() {
 
 function filterStudents(query) {
     const classCards = document.querySelectorAll('.class-card');
-
     if (!query) {
-        // Show all
         classCards.forEach(card => {
             card.style.display = '';
-            card.querySelectorAll('.student-preview').forEach(preview => {
-                preview.style.display = '';
-            });
+            card.querySelectorAll('.student-preview').forEach(p => p.style.display = '');
         });
         return;
     }
@@ -790,52 +697,45 @@ function filterStudents(query) {
     classCards.forEach(card => {
         const previews = card.querySelectorAll('.student-preview');
         let hasMatch = false;
-
         previews.forEach(preview => {
             const name = preview.querySelector('.student-preview-name').textContent.toLowerCase();
             const id = preview.querySelector('.student-preview-id').textContent.toLowerCase();
-
-            if (name.includes(query) || id.includes(query)) {
-                preview.style.display = '';
-                hasMatch = true;
-            } else {
-                preview.style.display = 'none';
-            }
+            const match = name.includes(query) || id.includes(query);
+            preview.style.display = match ? '' : 'none';
+            if (match) hasMatch = true;
         });
-
-        // Also check class name
         const classLabel = card.querySelector('.class-label').textContent.toLowerCase();
         if (classLabel.includes(query)) {
             hasMatch = true;
-            previews.forEach(preview => preview.style.display = '');
+            previews.forEach(p => p.style.display = '');
         }
-
         card.style.display = hasMatch ? '' : 'none';
     });
 }
+
+// ========================================
+// CLASS CARDS
+// ========================================
 
 function renderClassCards() {
     const container = document.getElementById('first-year-classes');
     if (!container) return;
 
-    const classes = ['A', 'B', 'C', 'D'];
     container.innerHTML = '';
-
     let totalStudents = 0;
 
-    classes.forEach(className => {
+    ['A', 'B', 'C', 'D'].forEach(className => {
         const students = getStudentsByClass(1, className);
-        const sortedStudents = getSortedStudents(students, currentSort);
         totalStudents += students.length;
-        const card = createClassCard(1, className, sortedStudents);
+        const card = createClassCard(1, className, getSortedStudents(students, state.currentSort));
         container.appendChild(card);
     });
 
-    // Update total count
     const countEl = document.getElementById('first-year-count');
-    if (countEl) {
-        countEl.textContent = `${totalStudents} total`;
-    }
+    if (countEl) countEl.textContent = `${totalStudents} total`;
+
+    // Reattach hover sounds to new elements
+    attachHoverSounds(container);
 }
 
 function createClassCard(year, className, students) {
@@ -843,24 +743,9 @@ function createClassCard(year, className, students) {
     card.className = `class-card class-${className.toLowerCase()}`;
 
     const previewStudents = students.slice(0, 3);
-    const studentPreviews = previewStudents.map(s => createStudentPreview(s, className)).join('');
-
-    const emptyMessage = students.length === 0
-        ? '<div class="empty-class">No students enrolled</div>'
-        : '';
-
-    const viewAllLink = students.length > 3
-        ? `<div class="view-all-link">View all ${students.length} students</div>`
-        : '';
-
-    // Get class points and ranking
-    const points = (typeof classPoints !== 'undefined' && classPoints[year])
-        ? classPoints[year][className] || 0
-        : 0;
-
-    // Calculate rank
+    const points = (typeof classPoints !== 'undefined' && classPoints[year]) ? classPoints[year][className] || 0 : 0;
     const rank = getClassRank(year, className);
-    const rankSuffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
+    const rankSuffix = ['', 'st', 'nd', 'rd'][rank] || 'th';
 
     card.innerHTML = `
         <div class="class-card-header">
@@ -874,44 +759,32 @@ function createClassCard(year, className, students) {
             </div>
         </div>
         <div class="class-card-students">
-            ${studentPreviews}
-            ${emptyMessage}
+            ${previewStudents.map(s => createStudentPreviewHTML(s)).join('')}
+            ${students.length === 0 ? '<div class="empty-class">No students enrolled</div>' : ''}
         </div>
-        ${viewAllLink}
+        ${students.length > 3 ? `<div class="view-all-link">View all ${students.length} students</div>` : ''}
     `;
 
-    // Add click handlers for student previews
+    // Student preview clicks
     card.querySelectorAll('.student-preview').forEach(preview => {
         preview.addEventListener('click', (e) => {
             e.stopPropagation();
-            playSound('click');
-            const studentId = preview.dataset.studentId;
-            const student = studentLookup[studentId];
+            const student = studentLookup[preview.dataset.studentId];
             if (student) {
-                // First navigate to class view (in history), then to profile
-                currentClass = { year: student.year, className: student.class };
-
-                // Add dashboard to history
-                navigationHistory.push({
-                    screen: 'oaa-app',
-                    oaaView: 'oaa-dashboard',
-                    classData: null
-                });
-
-                // Add class view to history
-                navigationHistory.push({
-                    screen: 'oaa-app',
-                    oaaView: 'oaa-class',
-                    classData: { year: student.year, className: student.class }
-                });
-
-                // Now show profile
-                showStudentProfile(student, false);
+                if (state.compareMode) {
+                    toggleCompareSelection(student);
+                } else {
+                    playSound('click');
+                    state.currentClass = { year: student.year, className: student.class };
+                    state.navigationHistory.push({ screen: 'oaa-app', oaaView: 'oaa-dashboard', classData: null });
+                    state.navigationHistory.push({ screen: 'oaa-app', oaaView: 'oaa-class', classData: { year: student.year, className: student.class } });
+                    showStudentProfile(student, false);
+                }
             }
         });
     });
 
-    // Card click goes to class view
+    // Card click
     card.addEventListener('click', () => {
         playSound('click');
         showClassView(year, className);
@@ -920,39 +793,33 @@ function createClassCard(year, className, students) {
     return card;
 }
 
-function createStudentPreview(student, className) {
+function createStudentPreviewHTML(student) {
     const initials = getInitials(student.name);
-    const avatarHtml = student.image
-        ? `<img class="student-avatar" src="${student.image}" alt="${student.name}">`
-        : `<div class="student-avatar-placeholder">${initials}</div>`;
+    const isFavorite = state.favorites.includes(student.id);
+    const isComparing = state.compareList.includes(student.id);
 
     return `
-        <div class="student-preview" data-student-id="${student.id}">
-            ${avatarHtml}
+        <div class="student-preview ${isComparing ? 'comparing' : ''}" data-student-id="${student.id}">
+            ${student.image
+                ? `<img class="student-avatar" src="${student.image}" alt="${student.name}">`
+                : `<div class="student-avatar-placeholder">${initials}</div>`}
             <div class="student-preview-info">
-                <div class="student-preview-name">${student.name}</div>
+                <div class="student-preview-name">${student.name} ${isFavorite ? '<span class="favorite-star">★</span>' : ''}</div>
                 <div class="student-preview-id">${student.id}</div>
             </div>
+            ${state.compareMode ? `<div class="compare-checkbox ${isComparing ? 'checked' : ''}"></div>` : ''}
         </div>
     `;
 }
 
-// Store students for quick lookup
-let studentLookup = {};
-
-function buildStudentLookup() {
-    if (typeof studentData === 'undefined') return;
-    studentData.forEach(s => {
-        studentLookup[s.id] = s;
-    });
-}
+// ========================================
+// CLASS VIEW
+// ========================================
 
 function showClassView(year, className, addToHistory = true) {
-    currentClass = { year, className };
-    const students = getStudentsByClass(year, className);
-    const sortedStudents = getSortedStudents(students, currentSort);
+    state.currentClass = { year, className };
+    const students = getSortedStudents(getStudentsByClass(year, className), state.currentSort);
 
-    // Update badge
     const badge = document.getElementById('class-badge');
     if (badge) {
         badge.textContent = className;
@@ -965,58 +832,64 @@ function showClassView(year, className, addToHistory = true) {
     const container = document.getElementById('student-list');
     container.innerHTML = '';
 
-    if (sortedStudents.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 3rem;">No students enrolled in this class</p>';
+    if (students.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 3rem;">No students enrolled</p>';
     } else {
-        sortedStudents.forEach(student => {
-            const card = createStudentCard(student);
-            container.appendChild(card);
-        });
+        students.forEach(student => container.appendChild(createStudentCard(student)));
     }
 
     showOAAView('oaa-class', addToHistory);
+    attachHoverSounds(container);
 }
 
 function createStudentCard(student) {
     const card = document.createElement('div');
-    card.className = 'student-card';
-    card.addEventListener('click', () => {
-        playSound('click');
-        showStudentProfile(student);
-    });
-
-    const initials = getInitials(student.name);
-    const avatarHtml = student.image
-        ? `<img class="student-card-avatar" src="${student.image}" alt="${student.name}">`
-        : `<div class="student-card-avatar-placeholder">${initials}</div>`;
-
-    const overallGrade = calculateOverallGrade(student.stats);
+    const isFavorite = state.favorites.includes(student.id);
+    const isComparing = state.compareList.includes(student.id);
+    card.className = `student-card ${isComparing ? 'comparing' : ''}`;
+    card.dataset.studentId = student.id;
 
     card.innerHTML = `
-        ${avatarHtml}
+        ${state.compareMode ? `<div class="compare-checkbox ${isComparing ? 'checked' : ''}"></div>` : ''}
+        ${student.image
+            ? `<img class="student-card-avatar" src="${student.image}" alt="${student.name}">`
+            : `<div class="student-card-avatar-placeholder">${getInitials(student.name)}</div>`}
         <div class="student-card-info">
-            <div class="student-card-name">${student.name}</div>
+            <div class="student-card-name">${student.name} ${isFavorite ? '<span class="favorite-star">★</span>' : ''}</div>
             <div class="student-card-class">${student.year}${getYearSuffix(student.year)} Year - Class ${student.class}</div>
         </div>
         <div class="student-card-rating">
-            <span class="rating-grade">${overallGrade}</span>
+            <span class="rating-grade">${calculateOverallGrade(student.stats)}</span>
             <span class="rating-label">OAA</span>
         </div>
     `;
 
+    card.addEventListener('click', () => {
+        if (state.compareMode) {
+            toggleCompareSelection(student);
+        } else {
+            playSound('click');
+            showStudentProfile(student);
+        }
+    });
+
     return card;
 }
 
-function showStudentProfile(student, addToHistory = true) {
-    currentStudent = student;
+// ========================================
+// PROFILE VIEW
+// ========================================
 
-    document.getElementById('profile-name').textContent = student.name;
+function showStudentProfile(student, addToHistory = true) {
+    state.currentStudent = student;
+    const isFavorite = state.favorites.includes(student.id);
+
+    document.getElementById('profile-name').innerHTML = `${student.name} <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-student-id="${student.id}">${isFavorite ? '★' : '☆'}</button>`;
     document.getElementById('profile-class').textContent = `${student.year}${getYearSuffix(student.year)} Year - Class ${student.class}`;
     document.getElementById('profile-id').textContent = student.id;
 
     const profileImage = document.getElementById('profile-image');
     const profilePlaceholder = document.getElementById('profile-placeholder');
-
     if (student.image) {
         profileImage.src = student.image;
         profileImage.style.display = 'block';
@@ -1026,56 +899,221 @@ function showStudentProfile(student, addToHistory = true) {
         if (profilePlaceholder) profilePlaceholder.style.display = 'flex';
     }
 
-    // Calculate and display overall grade
-    const overall = calculateOverallGrade(student.stats);
-    document.getElementById('profile-overall').textContent = overall;
+    document.getElementById('profile-overall').textContent = calculateOverallGrade(student.stats);
 
-    // Render stats
     const statList = document.getElementById('stat-list');
     statList.innerHTML = '';
-
-    const statNames = [
-        'Academic Ability',
-        'Intelligence',
-        'Decision Making',
-        'Physical Ability',
-        'Cooperativeness'
-    ];
-
+    const statNames = ['Academic Ability', 'Intelligence', 'Decision Making', 'Physical Ability', 'Cooperativeness'];
     const statKeys = ['academic', 'intelligence', 'decision', 'physical', 'cooperativeness'];
 
-    statKeys.forEach((key, index) => {
+    statKeys.forEach((key, i) => {
         const value = student.stats[key] || 50;
-        const grade = getGradeFromValue(value);
-        const statRow = document.createElement('div');
-        statRow.className = 'stat-row';
-        statRow.innerHTML = `
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+        row.innerHTML = `
             <div class="stat-header">
-                <span class="stat-label">${statNames[index]}</span>
-                <span class="stat-value">${value}/100 <span class="stat-grade">${grade}</span></span>
+                <span class="stat-label">${statNames[i]}</span>
+                <span class="stat-value">${value}/100 <span class="stat-grade">${getGradeFromValue(value)}</span></span>
             </div>
-            <div class="stat-bar">
-                <div class="stat-bar-fill" style="width: 0%"></div>
-            </div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width: 0%"></div></div>
         `;
-        statList.appendChild(statRow);
-
-        // Animate bar with color class
+        statList.appendChild(row);
         setTimeout(() => {
-            const fill = statRow.querySelector('.stat-bar-fill');
+            const fill = row.querySelector('.stat-bar-fill');
             fill.style.width = value + '%';
-            // Add color class based on value
-            if (value < 40) {
-                fill.classList.add('stat-low');
-            } else if (value < 70) {
-                fill.classList.add('stat-medium');
-            } else {
-                fill.classList.add('stat-high');
-            }
-        }, 100 + index * 80);
+            fill.classList.add(value < 40 ? 'stat-low' : value < 70 ? 'stat-medium' : 'stat-high');
+        }, 100 + i * 80);
     });
 
+    // Favorite button handler
+    const favBtn = document.querySelector('.favorite-btn');
+    if (favBtn) {
+        favBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFavorite(student.id);
+        });
+    }
+
     showOAAView('oaa-profile', addToHistory);
+}
+
+// ========================================
+// FAVORITES SYSTEM
+// ========================================
+
+function toggleFavorite(studentId) {
+    const index = state.favorites.indexOf(studentId);
+    if (index > -1) {
+        state.favorites.splice(index, 1);
+        playSound('back');
+    } else {
+        state.favorites.push(studentId);
+        playSound('success');
+    }
+    localStorage.setItem('cote-favorites', JSON.stringify(state.favorites));
+    updateFavoritesUI();
+}
+
+function updateFavoritesUI() {
+    // Update favorite button in profile if visible
+    const favBtn = document.querySelector('.favorite-btn');
+    if (favBtn && state.currentStudent) {
+        const isFav = state.favorites.includes(state.currentStudent.id);
+        favBtn.textContent = isFav ? '★' : '☆';
+        favBtn.classList.toggle('active', isFav);
+    }
+}
+
+// ========================================
+// COMPARE MODE
+// ========================================
+
+function initCompareMode() {
+    // Compare bar at bottom
+    const compareBar = document.createElement('div');
+    compareBar.id = 'compare-bar';
+    compareBar.className = 'compare-bar';
+    compareBar.innerHTML = `
+        <div class="compare-bar-content">
+            <span class="compare-count">0 selected</span>
+            <button class="compare-btn" disabled>Compare</button>
+            <button class="compare-cancel">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(compareBar);
+
+    compareBar.querySelector('.compare-btn').addEventListener('click', showComparison);
+    compareBar.querySelector('.compare-cancel').addEventListener('click', exitCompareMode);
+}
+
+function toggleCompareMode() {
+    state.compareMode = !state.compareMode;
+    playSound('select');
+    document.body.classList.toggle('compare-mode', state.compareMode);
+
+    if (!state.compareMode) {
+        state.compareList = [];
+    }
+
+    updateCompareUI();
+
+    // Re-render current view
+    if (state.currentOAAView === 'oaa-dashboard') {
+        renderClassCards();
+    } else if (state.currentOAAView === 'oaa-class' && state.currentClass) {
+        showClassView(state.currentClass.year, state.currentClass.className, false);
+    }
+}
+
+function exitCompareMode() {
+    state.compareMode = false;
+    state.compareList = [];
+    document.body.classList.remove('compare-mode');
+    updateCompareUI();
+
+    if (state.currentOAAView === 'oaa-dashboard') {
+        renderClassCards();
+    } else if (state.currentOAAView === 'oaa-class' && state.currentClass) {
+        showClassView(state.currentClass.year, state.currentClass.className, false);
+    }
+}
+
+function toggleCompareSelection(student) {
+    const index = state.compareList.indexOf(student.id);
+    if (index > -1) {
+        state.compareList.splice(index, 1);
+        playSound('back');
+    } else if (state.compareList.length < 4) {
+        state.compareList.push(student.id);
+        playSound('select');
+    } else {
+        playSound('error');
+        return;
+    }
+    updateCompareUI();
+
+    // Update visual state
+    document.querySelectorAll(`[data-student-id="${student.id}"]`).forEach(el => {
+        el.classList.toggle('comparing', state.compareList.includes(student.id));
+        const checkbox = el.querySelector('.compare-checkbox');
+        if (checkbox) checkbox.classList.toggle('checked', state.compareList.includes(student.id));
+    });
+}
+
+function updateCompareUI() {
+    const bar = document.getElementById('compare-bar');
+    if (!bar) return;
+
+    const count = state.compareList.length;
+    bar.querySelector('.compare-count').textContent = `${count} selected`;
+    bar.querySelector('.compare-btn').disabled = count < 2;
+    bar.classList.toggle('active', state.compareMode);
+}
+
+function showComparison() {
+    if (state.compareList.length < 2) return;
+
+    playSound('open');
+    const students = state.compareList.map(id => studentLookup[id]).filter(Boolean);
+
+    // Create comparison modal
+    const modal = document.createElement('div');
+    modal.className = 'comparison-modal';
+    modal.innerHTML = `
+        <div class="comparison-content">
+            <div class="comparison-header">
+                <h2>Student Comparison</h2>
+                <button class="comparison-close">×</button>
+            </div>
+            <div class="comparison-grid" style="grid-template-columns: repeat(${students.length}, 1fr)">
+                ${students.map(s => `
+                    <div class="comparison-student">
+                        <div class="comparison-avatar">
+                            ${s.image ? `<img src="${s.image}" alt="${s.name}">` : `<div class="avatar-placeholder">${getInitials(s.name)}</div>`}
+                        </div>
+                        <h3>${s.name}</h3>
+                        <p>Class ${s.class}</p>
+                        <div class="comparison-grade">${calculateOverallGrade(s.stats)}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="comparison-stats">
+                ${['Academic Ability', 'Intelligence', 'Decision Making', 'Physical Ability', 'Cooperativeness'].map((name, i) => {
+                    const key = ['academic', 'intelligence', 'decision', 'physical', 'cooperativeness'][i];
+                    return `
+                        <div class="comparison-stat-row">
+                            <span class="stat-name">${name}</span>
+                            <div class="stat-values">
+                                ${students.map(s => `<span class="stat-val ${getBestClass(students, key, s)}">${s.stats[key]}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('active'), 10);
+
+    modal.querySelector('.comparison-close').addEventListener('click', () => {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+        playSound('back');
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+            setTimeout(() => modal.remove(), 300);
+            playSound('back');
+        }
+    });
+}
+
+function getBestClass(students, key, current) {
+    const max = Math.max(...students.map(s => s.stats[key]));
+    return current.stats[key] === max ? 'best' : '';
 }
 
 // ========================================
@@ -1089,13 +1127,8 @@ function getStudentsByClass(year, className) {
 
 function getClassRank(year, className) {
     if (typeof classPoints === 'undefined' || !classPoints[year]) return 0;
-
-    const yearPoints = classPoints[year];
-    const classes = Object.entries(yearPoints)
-        .sort((a, b) => b[1] - a[1]); // Sort by points descending
-
-    const rank = classes.findIndex(([cls]) => cls === className) + 1;
-    return rank || 0;
+    const sorted = Object.entries(classPoints[year]).sort((a, b) => b[1] - a[1]);
+    return sorted.findIndex(([c]) => c === className) + 1;
 }
 
 function getInitials(name) {
@@ -1103,10 +1136,7 @@ function getInitials(name) {
 }
 
 function getYearSuffix(year) {
-    if (year === 1) return 'st';
-    if (year === 2) return 'nd';
-    if (year === 3) return 'rd';
-    return 'th';
+    return ['', 'st', 'nd', 'rd'][year] || 'th';
 }
 
 function getGradeFromValue(value) {
@@ -1126,75 +1156,13 @@ function getGradeFromValue(value) {
 }
 
 function calculateOverallGrade(stats) {
-    const values = [
-        stats.academic || 50,
-        stats.intelligence || 50,
-        stats.decision || 50,
-        stats.physical || 50,
-        stats.cooperativeness || 50
-    ];
-    const average = values.reduce((a, b) => a + b, 0) / values.length;
-    return getGradeFromValue(average);
+    const avg = calculateOverallValue(stats);
+    return getGradeFromValue(avg);
 }
 
-// ========================================
-// RIPPLE EFFECT
-// ========================================
-
-function initRippleEffect() {
-    // Add ripple to buttons and interactive elements
-    const rippleTargets = document.querySelectorAll('.nav-btn, .lock-btn, .app-icon-image');
-
-    rippleTargets.forEach(target => {
-        target.classList.add('ripple-container');
-        target.addEventListener('click', createRipple);
+function attachHoverSounds(container) {
+    const selectors = '.student-preview, .student-card, .view-all-link, .class-card';
+    container.querySelectorAll(selectors).forEach(el => {
+        el.addEventListener('mouseenter', () => playSound('hover'));
     });
 }
-
-function createRipple(e) {
-    const element = e.currentTarget;
-    const rect = element.getBoundingClientRect();
-
-    const ripple = document.createElement('span');
-    ripple.className = 'ripple';
-
-    const size = Math.max(rect.width, rect.height);
-    ripple.style.width = ripple.style.height = size + 'px';
-
-    ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-    ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-
-    element.appendChild(ripple);
-
-    // Remove ripple after animation
-    setTimeout(() => {
-        ripple.remove();
-    }, 600);
-}
-
-// ========================================
-// HOVER SOUNDS
-// ========================================
-
-function initHoverSounds() {
-    // Selectors for all interactive elements
-    const hoverSelectors = [
-        '.nav-btn',
-        '.lock-btn',
-        '.app-icon',
-        '.sort-btn',
-        '.class-card',
-        '.student-preview',
-        '.student-card',
-        '.view-all-link',
-        '.exam-type-card',
-        '.enter-hint'
-    ];
-
-    hoverSelectors.forEach(selector => {
-        document.querySelectorAll(selector).forEach(el => {
-            el.addEventListener('mouseenter', () => playSound('hover'));
-        });
-    });
-}
-

@@ -1635,7 +1635,9 @@ body::before {
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
-    padding-top: 1.5rem;
+    /* Match dashboard-header exactly */
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     margin-bottom: 1.5rem;
 }
 
@@ -2595,6 +2597,356 @@ body::before {
    RESPONSIVE
    ======================================== */
 
+/* ========================================
+   GLITCH EFFECTS
+   ======================================== */
+
+.glitching {
+    animation: glitchEffect 0.15s ease;
+}
+
+@keyframes glitchEffect {
+    0%, 100% {
+        transform: translate(0);
+        filter: none;
+    }
+    20% {
+        transform: translate(-2px, 1px);
+        filter: hue-rotate(90deg);
+    }
+    40% {
+        transform: translate(2px, -1px);
+        filter: hue-rotate(-90deg) saturate(2);
+    }
+    60% {
+        transform: translate(-1px, 2px);
+        filter: hue-rotate(180deg);
+    }
+    80% {
+        transform: translate(1px, -2px);
+        filter: hue-rotate(0deg) brightness(1.5);
+    }
+}
+
+/* ========================================
+   FAVORITES SYSTEM
+   ======================================== */
+
+.favorite-star {
+    color: var(--class-a);
+    font-size: 0.9em;
+    margin-left: 0.25rem;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    vertical-align: middle;
+}
+
+.favorite-btn:hover {
+    color: var(--class-a);
+    background: rgba(212, 175, 55, 0.1);
+    transform: scale(1.1);
+}
+
+.favorite-btn.active {
+    color: var(--class-a);
+    text-shadow: 0 0 10px var(--class-a-glow);
+}
+
+/* ========================================
+   COMPARE MODE
+   ======================================== */
+
+.compare-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--text-muted);
+    border-radius: 4px;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.compare-checkbox.checked {
+    background: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.compare-checkbox.checked::after {
+    content: '✓';
+    color: var(--bg-primary);
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.student-preview.comparing,
+.student-card.comparing {
+    border-color: var(--cyan);
+    background: rgba(77, 201, 230, 0.08);
+    box-shadow: 0 0 15px var(--cyan-glow);
+}
+
+/* Compare Bar */
+.compare-bar {
+    position: fixed;
+    bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+    border: 1px solid rgba(77, 201, 230, 0.3);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 2rem;
+    z-index: 1000;
+    transition: bottom 0.3s ease;
+    box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--cyan-glow);
+}
+
+.compare-bar.active {
+    bottom: 2rem;
+}
+
+.compare-bar-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.compare-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.compare-btn {
+    padding: 0.6rem 1.5rem;
+    background: linear-gradient(135deg, var(--cyan-dim), var(--cyan));
+    border: none;
+    border-radius: var(--border-radius-sm);
+    color: var(--bg-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.compare-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px var(--cyan-glow);
+}
+
+.compare-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.compare-cancel {
+    padding: 0.6rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.compare-cancel:hover {
+    border-color: var(--crimson-light);
+    color: var(--crimson-light);
+    background: rgba(154, 46, 72, 0.1);
+}
+
+/* ========================================
+   COMPARISON MODAL
+   ======================================== */
+
+.comparison-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.comparison-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.comparison-content {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    border: 1px solid rgba(77, 201, 230, 0.2);
+    border-radius: var(--border-radius-lg);
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7), 0 0 40px var(--cyan-glow);
+}
+
+.comparison-modal.active .comparison-content {
+    transform: scale(1) translateY(0);
+}
+
+.comparison-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comparison-header h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    color: var(--cyan);
+    margin: 0;
+}
+
+.comparison-close {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.comparison-close:hover {
+    background: rgba(154, 46, 72, 0.2);
+    border-color: var(--crimson-light);
+    color: var(--crimson-light);
+}
+
+.comparison-grid {
+    display: grid;
+    gap: 1.5rem;
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comparison-student {
+    text-align: center;
+}
+
+.comparison-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 1rem;
+    background: var(--bg-tertiary);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.comparison-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.comparison-avatar .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+}
+
+.comparison-student h3 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.comparison-student p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.comparison-grade {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--cyan);
+    text-shadow: 0 0 20px var(--cyan-glow);
+}
+
+.comparison-stats {
+    padding: 1.5rem 2rem 2rem;
+}
+
+.comparison-stat-row {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comparison-stat-row:last-child {
+    border-bottom: none;
+}
+
+.comparison-stat-row .stat-name {
+    flex: 0 0 150px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.stat-values {
+    display: flex;
+    flex: 1;
+    justify-content: space-around;
+}
+
+.stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 50px;
+    text-align: center;
+}
+
+.stat-val.best {
+    color: var(--cyan);
+    text-shadow: 0 0 10px var(--cyan-glow);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
 @media (max-width: 900px) {
     .app-view, .app-header, .dashboard-header {
         padding-left: 1.5rem;
@@ -2624,5 +2976,19 @@ body::before {
     .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .comparison-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .comparison-stat-row .stat-name {
+        flex: 0 0 100px;
+        font-size: 0.75rem;
+    }
+
+    .stat-val {
+        font-size: 0.95rem;
     }
 }
