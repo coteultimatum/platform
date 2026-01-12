@@ -19,41 +19,17 @@ let mouseY = 0;
 // Audio context for sound effects
 let audioContext = null;
 
-// Ambient noise nodes
-let ambientNoiseNode = null;
-let ambientGainNode = null;
-
-// Key repeat prevention
-let keysHeld = {};
-
 // ========================================
 // SOUND EFFECTS
 // ========================================
 
 function initAudio() {
     // Initialize on first user interaction
-    const startAudio = () => {
-        try {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            // Resume audio context if suspended (browser autoplay policy)
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-            // Start ambient noise after a short delay
-            setTimeout(() => {
-                if (!ambientNoiseNode) {
-                    startAmbientNoise();
-                }
-            }, 500);
-        } catch (e) {
-            console.log('Audio init failed:', e);
+    document.addEventListener('click', () => {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-    };
-
-    document.addEventListener('click', startAudio, { once: true });
-    document.addEventListener('keydown', startAudio, { once: true });
+    }, { once: true });
 }
 
 function playSound(type) {
@@ -129,139 +105,7 @@ function playSound(type) {
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.02);
             break;
-
-        case 'hover':
-            oscillator.frequency.setValueAtTime(1400, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.015, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.015);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.015);
-            break;
-
-        case 'error':
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-            break;
-
-        case 'focus':
-            oscillator.frequency.setValueAtTime(900, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(1100, audioContext.currentTime + 0.06);
-            gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.06);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.06);
-            break;
-
-        case 'bootLetter':
-            // Digital blip for each letter
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(800 + Math.random() * 400, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.08);
-            break;
-
-        case 'bootProgress':
-            // Subtle tick for progress
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(1500, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0.02, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.02);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.02);
-            break;
-
-        case 'bootComplete':
-            // Rising chord for boot complete
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3);
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-            break;
     }
-}
-
-// ========================================
-// AMBIENT NOISE
-// ========================================
-
-function startAmbientNoise() {
-    try {
-        if (!audioContext || ambientNoiseNode) return;
-
-        // Create noise using an AudioBufferSourceNode
-        const bufferSize = audioContext.sampleRate * 2; // 2 seconds of noise
-        const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-        const data = buffer.getChannelData(0);
-
-        // Generate pink-ish noise (filtered white noise)
-        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-        for (let i = 0; i < bufferSize; i++) {
-            const white = Math.random() * 2 - 1;
-            b0 = 0.99886 * b0 + white * 0.0555179;
-            b1 = 0.99332 * b1 + white * 0.0750759;
-            b2 = 0.96900 * b2 + white * 0.1538520;
-            b3 = 0.86650 * b3 + white * 0.3104856;
-            b4 = 0.55000 * b4 + white * 0.5329522;
-            b5 = -0.7616 * b5 - white * 0.0168980;
-            data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
-            b6 = white * 0.115926;
-        }
-
-        // Create source node
-        ambientNoiseNode = audioContext.createBufferSource();
-        ambientNoiseNode.buffer = buffer;
-        ambientNoiseNode.loop = true;
-
-        // Create filter to make it more subtle (low-pass)
-        const filter = audioContext.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 400;
-
-        // Create gain node for volume control
-        ambientGainNode = audioContext.createGain();
-        ambientGainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        ambientGainNode.gain.linearRampToValueAtTime(0.015, audioContext.currentTime + 2); // Fade in
-
-        // Connect: noise -> filter -> gain -> output
-        ambientNoiseNode.connect(filter);
-        filter.connect(ambientGainNode);
-        ambientGainNode.connect(audioContext.destination);
-
-        ambientNoiseNode.start();
-    } catch (e) {
-        console.log('Ambient noise failed:', e);
-    }
-}
-
-function stopAmbientNoise() {
-    if (ambientGainNode) {
-        ambientGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1);
-        setTimeout(() => {
-            if (ambientNoiseNode) {
-                ambientNoiseNode.stop();
-                ambientNoiseNode = null;
-            }
-            ambientGainNode = null;
-        }, 1000);
-    }
-}
-
-// ========================================
-// BOOT SEQUENCE SOUNDS
-// ========================================
-
-function initBootSounds() {
-    // Boot sounds disabled - audio requires user interaction in most browsers
-    // Sounds will initialize on first click via initAudio()
 }
 
 // ========================================
@@ -269,8 +113,7 @@ function initBootSounds() {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    initBootSounds();
-    initAudio(); // Fallback for browsers that block autoplay
+    initAudio();
     createStarfield();
     createParticles();
     initShootingStars();
@@ -285,15 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initRippleEffect();
     initParallax();
     initTypingEffect();
-    initHoverSounds();
-
-    // Backup: forcefully hide boot screen after animation should be complete
-    setTimeout(() => {
-        const bootScreen = document.getElementById('boot-screen');
-        if (bootScreen) {
-            bootScreen.style.display = 'none';
-        }
-    }, 3500); // 2.2s delay + 0.8s animation + buffer
 });
 
 // ========================================
@@ -709,37 +543,11 @@ function initNavButtons() {
                 showScreen('home-screen', false);
             }
         });
-
-        btn.addEventListener('mouseenter', () => {
-            playSound('hover');
-        });
     });
-}
 
-// ========================================
-// HOVER SOUNDS
-// ========================================
-
-function initHoverSounds() {
-    // Add hover sounds to interactive elements
-    const hoverTargets = [
-        '.app-icon',
-        '.class-card',
-        '.student-card',
-        '.student-preview',
-        '.sort-btn',
-        '.lock-btn',
-        '.view-all-link',
-        '.exam-type-card',
-        '.key-hint',
-        '.enter-hint'
-    ];
-
-    hoverTargets.forEach(selector => {
-        document.querySelectorAll(selector).forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                playSound('hover');
-            });
+    document.querySelectorAll('.back-link').forEach(link => {
+        link.addEventListener('click', () => {
+            goBack();
         });
     });
 }
@@ -749,12 +557,7 @@ function initHoverSounds() {
 // ========================================
 
 function initKeyboardNav() {
-    // Prevent key repeat
     document.addEventListener('keydown', (e) => {
-        // Skip if key is being held
-        if (keysHeld[e.key]) return;
-        keysHeld[e.key] = true;
-
         // Enter to unlock
         if (e.key === 'Enter' && currentScreen === 'lock-screen') {
             playSound('unlock');
@@ -767,7 +570,6 @@ function initKeyboardNav() {
         if (e.key === 'Escape') {
             const searchInput = document.querySelector('.search-input');
             if (searchInput && document.activeElement === searchInput) {
-                playSound('back');
                 searchInput.blur();
                 searchInput.value = '';
                 filterStudents('');
@@ -778,21 +580,10 @@ function initKeyboardNav() {
             return;
         }
 
-        // Backspace to go back (when not in search)
-        if (e.key === 'Backspace') {
-            const searchInput = document.querySelector('.search-input');
-            if (!searchInput || document.activeElement !== searchInput) {
-                e.preventDefault();
-                playSound('back');
-                goBack();
-            }
-            return;
-        }
-
         // Ctrl+K or / to focus search (when in OAA app)
         if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && currentScreen === 'oaa-app')) {
             e.preventDefault();
-            playSound('focus');
+            playSound('click');
             const searchInput = document.querySelector('.search-input');
             if (searchInput && currentScreen === 'oaa-app' && currentOAAView === 'oaa-dashboard') {
                 searchInput.focus();
@@ -810,11 +601,6 @@ function initKeyboardNav() {
                 openApp('events');
             }
         }
-    });
-
-    // Release key tracking
-    document.addEventListener('keyup', (e) => {
-        keysHeld[e.key] = false;
     });
 }
 
@@ -936,13 +722,8 @@ function initSearch() {
     if (!searchInput) return;
 
     searchInput.addEventListener('input', (e) => {
-        playSound('type');
         const query = e.target.value.toLowerCase().trim();
         filterStudents(query);
-    });
-
-    searchInput.addEventListener('focus', () => {
-        playSound('focus');
     });
 
     searchInput.addEventListener('keydown', (e) => {
@@ -1098,28 +879,6 @@ function createClassCard(year, className, students) {
         showClassView(year, className);
     });
 
-    // Hover sound for card
-    card.addEventListener('mouseenter', () => {
-        playSound('hover');
-    });
-
-    // Hover sound for student previews
-    card.querySelectorAll('.student-preview').forEach(preview => {
-        preview.addEventListener('mouseenter', (e) => {
-            e.stopPropagation();
-            playSound('hover');
-        });
-    });
-
-    // Hover sound for view all link
-    const viewAllLink = card.querySelector('.view-all-link');
-    if (viewAllLink) {
-        viewAllLink.addEventListener('mouseenter', (e) => {
-            e.stopPropagation();
-            playSound('hover');
-        });
-    }
-
     return card;
 }
 
@@ -1186,9 +945,6 @@ function createStudentCard(student) {
     card.addEventListener('click', () => {
         playSound('click');
         showStudentProfile(student);
-    });
-    card.addEventListener('mouseenter', () => {
-        playSound('hover');
     });
 
     const initials = getInitials(student.name);

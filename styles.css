@@ -174,14 +174,7 @@ body::before {
 }
 
 @keyframes bootFadeOut {
-    0% {
-        opacity: 1;
-        visibility: visible;
-    }
-    1% {
-        pointer-events: none; /* Disable clicks immediately when fade starts */
-    }
-    100% {
+    to {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
@@ -1584,20 +1577,12 @@ body::before {
     color: var(--text-muted);
     font-size: 0.85rem;
     transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.view-all-link:hover {
-    background: rgba(77, 201, 230, 0.15);
-    border-color: var(--cyan);
-    color: var(--cyan);
-    box-shadow: 0 0 15px rgba(77, 201, 230, 0.2);
 }
 
 .class-card:hover .view-all-link {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
+    background: rgba(var(--class-color), 0.1);
+    border-color: var(--class-color);
+    color: var(--text-primary);
 }
 
 .empty-class {
@@ -1643,7 +1628,7 @@ body::before {
 
 .class-view-top {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
