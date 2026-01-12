@@ -933,6 +933,9 @@ body::before {
     gap: 0.5rem;
     transition: all 0.2s ease;
     cursor: default;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
 }
 
 .key-hint:hover {
@@ -1054,6 +1057,7 @@ body::before {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.15);
+    text-transform: uppercase;
 }
 
 .nav-btn:hover {
@@ -1108,12 +1112,11 @@ body::before {
 /* Dashboard Header with Search */
 .dashboard-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 1.5rem 3rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     margin-bottom: 1rem;
-    flex-wrap: wrap;
     gap: 1rem;
 }
 
@@ -1592,15 +1595,19 @@ body::before {
     animation: studentCardIn 0.4s ease backwards;
 }
 
-/* Staggered entrance animation - opacity/blur to avoid hover conflict */
-.student-card:nth-child(1) { animation-delay: 0.05s; }
-.student-card:nth-child(2) { animation-delay: 0.1s; }
-.student-card:nth-child(3) { animation-delay: 0.15s; }
-.student-card:nth-child(4) { animation-delay: 0.2s; }
-.student-card:nth-child(5) { animation-delay: 0.25s; }
-.student-card:nth-child(6) { animation-delay: 0.3s; }
-.student-card:nth-child(7) { animation-delay: 0.35s; }
-.student-card:nth-child(8) { animation-delay: 0.4s; }
+/* Staggered entrance animation */
+.student-card:nth-child(1) { animation-delay: 0.03s; }
+.student-card:nth-child(2) { animation-delay: 0.06s; }
+.student-card:nth-child(3) { animation-delay: 0.09s; }
+.student-card:nth-child(4) { animation-delay: 0.12s; }
+.student-card:nth-child(5) { animation-delay: 0.15s; }
+.student-card:nth-child(6) { animation-delay: 0.18s; }
+.student-card:nth-child(7) { animation-delay: 0.21s; }
+.student-card:nth-child(8) { animation-delay: 0.24s; }
+.student-card:nth-child(9) { animation-delay: 0.27s; }
+.student-card:nth-child(10) { animation-delay: 0.30s; }
+.student-card:nth-child(11) { animation-delay: 0.33s; }
+.student-card:nth-child(12) { animation-delay: 0.36s; }
 
 @keyframes studentCardIn {
     from {
@@ -1712,6 +1719,14 @@ body::before {
     margin: 0 auto;
     position: relative;
     animation: profileCardIn 0.5s ease;
+    transition: box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    box-shadow:
+        0 0 30px var(--cyan-glow),
+        0 0 60px rgba(77, 201, 230, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes profileCardIn {
@@ -2023,12 +2038,7 @@ body::before {
     border: 1px solid rgba(77, 201, 230, 0.1);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
-    animation: cardSlideIn 0.5s ease backwards;
 }
-
-.events-section:nth-child(1) { animation-delay: 0.1s; }
-.events-section:nth-child(2) { animation-delay: 0.2s; }
-.events-section:nth-child(3) { animation-delay: 0.3s; }
 
 .events-section-header {
     display: flex;
