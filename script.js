@@ -23,6 +23,7 @@ let mouseY = 0;
 document.addEventListener('DOMContentLoaded', () => {
     createStarfield();
     createParticles();
+    initShootingStars();
     updateTime();
     setInterval(updateTime, 1000);
     initLockScreen();
@@ -59,9 +60,20 @@ function createStarfield() {
         const duration = Math.random() * 3 + 2;
         const delay = Math.random() * 5;
         star.style.setProperty('--duration', duration + 's');
-        star.style.setProperty('--opacity', Math.random() * 0.6 + 0.2);
+        star.style.setProperty('--opacity', Math.random() * 0.5 + 0.4); // Increased visibility
         star.style.setProperty('--depth', Math.random()); // For parallax
         star.style.animationDelay = delay + 's';
+
+        // 20% chance of cyan-tinted star
+        if (Math.random() < 0.2) {
+            star.style.background = '#4dc9e6';
+            star.style.boxShadow = '0 0 6px rgba(77, 201, 230, 0.8)';
+        }
+        // 5% chance of crimson-tinted star
+        else if (Math.random() < 0.05) {
+            star.style.background = '#9a2e48';
+            star.style.boxShadow = '0 0 6px rgba(154, 46, 72, 0.8)';
+        }
 
         starfield.appendChild(star);
     }
@@ -91,6 +103,62 @@ function createParticles() {
 
         starfield.appendChild(particle);
     }
+}
+
+// ========================================
+// SHOOTING STARS
+// ========================================
+
+function initShootingStars() {
+    // Create shooting stars at random intervals
+    function scheduleShootingStar() {
+        const delay = Math.random() * 8000 + 4000; // 4-12 seconds between shooting stars
+        setTimeout(() => {
+            createShootingStar();
+            scheduleShootingStar();
+        }, delay);
+    }
+
+    // Start after initial delay
+    setTimeout(scheduleShootingStar, 2000);
+}
+
+function createShootingStar() {
+    const starfield = document.getElementById('starfield');
+    if (!starfield) return;
+
+    const shootingStar = document.createElement('div');
+    shootingStar.className = 'shooting-star';
+
+    // Random starting position (upper portion of screen)
+    const startX = Math.random() * 80 + 10; // 10-90% from left
+    const startY = Math.random() * 30 + 5;  // 5-35% from top
+
+    shootingStar.style.left = startX + '%';
+    shootingStar.style.top = startY + '%';
+
+    // Angle: mostly diagonal down-right, with some variation
+    const angle = Math.random() * 30 + 25; // 25-55 degrees
+    shootingStar.style.setProperty('--angle', angle + 'deg');
+
+    // Distance traveled
+    const distance = Math.random() * 200 + 150;
+    const distanceX = distance * Math.cos(angle * Math.PI / 180);
+    const distanceY = distance * Math.sin(angle * Math.PI / 180);
+    shootingStar.style.setProperty('--distance-x', distanceX + 'px');
+    shootingStar.style.setProperty('--distance-y', distanceY + 'px');
+
+    // Tail length and duration
+    const tailLength = Math.random() * 60 + 40;
+    shootingStar.style.setProperty('--tail-length', tailLength + 'px');
+    shootingStar.style.setProperty('--duration', '0.8s');
+
+    starfield.appendChild(shootingStar);
+
+    // Remove after animation
+    setTimeout(() => {
+        shootingStar.remove();
+    }, 1000);
 }
 
 // ========================================
