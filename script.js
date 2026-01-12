@@ -363,9 +363,26 @@ function initKeyboardNav() {
             return;
         }
 
-        // ESC to go back
+        // ESC to go back (but not if in search)
         if (e.key === 'Escape') {
-            goBack();
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput && document.activeElement === searchInput) {
+                searchInput.blur();
+                searchInput.value = '';
+                filterStudents('');
+            } else {
+                goBack();
+            }
+            return;
+        }
+
+        // Ctrl+K or / to focus search (when in OAA app)
+        if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && currentScreen === 'oaa-app')) {
+            e.preventDefault();
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput && currentScreen === 'oaa-app' && currentOAAView === 'oaa-dashboard') {
+                searchInput.focus();
+            }
             return;
         }
 
@@ -401,6 +418,8 @@ function showOAAView(viewId, addToHistory = true) {
     if (target) {
         target.classList.add('active');
         currentOAAView = viewId;
+        // Scroll to top of view
+        target.scrollTop = 0;
     }
 }
 
@@ -514,10 +533,14 @@ function createClassCard(year, className, students) {
         ? `<div class="view-all-link">View all ${students.length} students</div>`
         : '';
 
-    // Get class points
+    // Get class points and ranking
     const points = (typeof classPoints !== 'undefined' && classPoints[year])
         ? classPoints[year][className] || 0
         : 0;
+
+    // Calculate rank
+    const rank = getClassRank(year, className);
+    const rankSuffix = rank === 1 ? 'st' : rank === 2 ? 'nd' : rank === 3 ? 'rd' : 'th';
 
     card.innerHTML = `
         <div class="class-card-header">
@@ -526,8 +549,8 @@ function createClassCard(year, className, students) {
                 <span class="class-label">Class ${className}</span>
             </div>
             <div class="class-card-stats">
+                <div class="class-rank">${rank}${rankSuffix}</div>
                 <span class="class-points">${points.toLocaleString()} CP</span>
-                <span class="class-card-count">${students.length} students</span>
             </div>
         </div>
         <div class="class-card-students">
@@ -643,13 +666,18 @@ function createStudentCard(student) {
         ? `<img class="student-card-avatar" src="${student.image}" alt="${student.name}">`
         : `<div class="student-card-avatar-placeholder">${initials}</div>`;
 
+    const overallGrade = calculateOverallGrade(student.stats);
+
     card.innerHTML = `
         ${avatarHtml}
         <div class="student-card-info">
             <div class="student-card-name">${student.name}</div>
             <div class="student-card-class">${student.year}${getYearSuffix(student.year)} Year - Class ${student.class}</div>
         </div>
-        <div class="student-card-id">${student.id}</div>
+        <div class="student-card-rating">
+            <span class="rating-grade">${overallGrade}</span>
+            <span class="rating-label">OAA</span>
+        </div>
     `;
 
     return card;
@@ -733,6 +761,17 @@ function showStudentProfile(student, addToHistory = true) {
 function getStudentsByClass(year, className) {
     if (typeof studentData === 'undefined') return [];
     return studentData.filter(s => s.year === year && s.class === className);
+}
+
+function getClassRank(year, className) {
+    if (typeof classPoints === 'undefined' || !classPoints[year]) return 0;
+
+    const yearPoints = classPoints[year];
+    const classes = Object.entries(yearPoints)
+        .sort((a, b) => b[1] - a[1]); // Sort by points descending
+
+    const rank = classes.findIndex(([cls]) => cls === className) + 1;
+    return rank || 0;
 }
 
 function getInitials(name) {
