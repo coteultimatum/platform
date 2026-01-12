@@ -33,11 +33,11 @@ const studentData = [
         id: "S01T004801",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 92,
+            intelligence: 88,
+            decision: 75,
+            physical: 45,
+            cooperativeness: 60
         }
     },
     {
@@ -47,11 +47,11 @@ const studentData = [
         id: "S01T004802",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 78,
+            intelligence: 82,
+            decision: 90,
+            physical: 70,
+            cooperativeness: 55
         }
     },
     {
@@ -61,11 +61,11 @@ const studentData = [
         id: "S01T004803",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 85,
+            intelligence: 70,
+            decision: 65,
+            physical: 88,
+            cooperativeness: 80
         }
     },
     {
@@ -75,11 +75,11 @@ const studentData = [
         id: "S01T004804",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 70,
+            intelligence: 95,
+            decision: 80,
+            physical: 55,
+            cooperativeness: 40
         }
     },
 
@@ -91,11 +91,11 @@ const studentData = [
         id: "S01T004821",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 65,
+            intelligence: 72,
+            decision: 85,
+            physical: 90,
+            cooperativeness: 75
         }
     },
     {
@@ -105,11 +105,11 @@ const studentData = [
         id: "S01T004822",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
+            academic: 88,
+            intelligence: 65,
+            decision: 60,
             physical: 50,
-            cooperativeness: 50
+            cooperativeness: 92
         }
     },
     {
@@ -119,11 +119,11 @@ const studentData = [
         id: "S01T004823",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 75,
+            intelligence: 80,
+            decision: 70,
+            physical: 65,
+            cooperativeness: 85
         }
     },
 
@@ -135,11 +135,11 @@ const studentData = [
         id: "S01T004841",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 55,
+            intelligence: 60,
+            decision: 92,
+            physical: 85,
+            cooperativeness: 45
         }
     },
     {
@@ -149,11 +149,11 @@ const studentData = [
         id: "S01T004842",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 80,
+            intelligence: 75,
+            decision: 55,
+            physical: 40,
+            cooperativeness: 70
         }
     },
     {
@@ -163,11 +163,11 @@ const studentData = [
         id: "S01T004843",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 45,
+            intelligence: 90,
+            decision: 78,
+            physical: 95,
+            cooperativeness: 55
         }
     },
 
@@ -179,11 +179,11 @@ const studentData = [
         id: "S01T004861",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 60,
+            intelligence: 85,
+            decision: 45,
+            physical: 75,
+            cooperativeness: 90
         }
     },
     {
@@ -193,10 +193,10 @@ const studentData = [
         id: "S01T004862",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
+            academic: 95,
+            intelligence: 55,
+            decision: 70,
+            physical: 60,
             cooperativeness: 50
         }
     },
@@ -207,11 +207,11 @@ const studentData = [
         id: "S01T004863",
         image: "",
         stats: {
-            academic: 50,
-            intelligence: 50,
-            decision: 50,
-            physical: 50,
-            cooperativeness: 50
+            academic: 72,
+            intelligence: 68,
+            decision: 88,
+            physical: 82,
+            cooperativeness: 78
         }
     }
 ];

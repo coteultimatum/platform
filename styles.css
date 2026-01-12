@@ -1279,6 +1279,7 @@ body::before {
     padding: 0 3rem 3rem;
     flex: 1;
     overflow-y: auto;
+    scrollbar-gutter: stable;
     position: relative;
     z-index: 10;
 }
@@ -1623,6 +1624,23 @@ body::before {
     outline: 2px solid var(--cyan);
     outline-offset: 4px;
     border-radius: 4px;
+}
+
+.class-view-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.class-sort {
+    flex-wrap: wrap;
+}
+
+.class-sort .sort-buttons {
+    flex-wrap: wrap;
 }
 
 .class-view-header {

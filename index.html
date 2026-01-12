@@ -154,12 +154,11 @@
                     <span class="sort-label">Sort:</span>
                     <div class="sort-buttons">
                         <button class="sort-btn active" data-sort="default">Default</button>
-                        <button class="sort-btn" data-sort="academic">Academic</button>
+                        <button class="sort-btn" data-sort="academic">Academic Ability</button>
                         <button class="sort-btn" data-sort="intelligence">Intelligence</button>
-                        <button class="sort-btn" data-sort="decision">Decision</button>
-                        <button class="sort-btn" data-sort="physical">Physical</button>
-                        <button class="sort-btn" data-sort="cooperativeness">Coop</button>
-                        <button class="sort-btn" data-sort="overall">Overall</button>
+                        <button class="sort-btn" data-sort="decision">Decision Making</button>
+                        <button class="sort-btn" data-sort="physical">Physical Ability</button>
+                        <button class="sort-btn" data-sort="cooperativeness">Cooperativeness</button>
                     </div>
                 </div>
                 <div class="search-container">
@@ -185,12 +184,25 @@
 
         <!-- OAA Class View -->
         <div id="oaa-class" class="app-view">
-            <button class="back-link" data-view="oaa-dashboard">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M15 18l-6-6 6-6"/>
-                </svg>
-                Back to All Classes
-            </button>
+            <div class="class-view-top">
+                <button class="back-link" data-view="oaa-dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                    Back to All Classes
+                </button>
+                <div class="sort-container class-sort">
+                    <span class="sort-label">Sort:</span>
+                    <div class="sort-buttons" id="class-sort-buttons">
+                        <button class="sort-btn active" data-sort="default">Default</button>
+                        <button class="sort-btn" data-sort="academic">Academic</button>
+                        <button class="sort-btn" data-sort="intelligence">Intelligence</button>
+                        <button class="sort-btn" data-sort="decision">Decision</button>
+                        <button class="sort-btn" data-sort="physical">Physical</button>
+                        <button class="sort-btn" data-sort="cooperativeness">Coop</button>
+                    </div>
+                </div>
+            </div>
             <div class="class-view-header">
                 <div class="class-view-badge" id="class-badge">A</div>
                 <div class="class-view-info">

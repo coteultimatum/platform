@@ -85,6 +85,26 @@ function playSound(type) {
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.03);
             break;
+
+        case 'boot':
+            // Two-tone boot sound
+            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(450, audioContext.currentTime + 0.15);
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime + 0.15);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            break;
+
+        case 'type':
+            oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.02, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.02);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.02);
+            break;
     }
 }
 
@@ -540,6 +560,7 @@ function initKeyboardNav() {
     document.addEventListener('keydown', (e) => {
         // Enter to unlock
         if (e.key === 'Enter' && currentScreen === 'lock-screen') {
+            playSound('unlock');
             navigationHistory = [];
             showScreen('home-screen');
             return;
@@ -553,6 +574,7 @@ function initKeyboardNav() {
                 searchInput.value = '';
                 filterStudents('');
             } else {
+                playSound('back');
                 goBack();
             }
             return;
@@ -561,6 +583,7 @@ function initKeyboardNav() {
         // Ctrl+K or / to focus search (when in OAA app)
         if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && currentScreen === 'oaa-app')) {
             e.preventDefault();
+            playSound('click');
             const searchInput = document.querySelector('.search-input');
             if (searchInput && currentScreen === 'oaa-app' && currentOAAView === 'oaa-dashboard') {
                 searchInput.focus();
@@ -571,8 +594,10 @@ function initKeyboardNav() {
         // Number keys for apps (from home screen)
         if (currentScreen === 'home-screen') {
             if (e.key === '1') {
+                playSound('open');
                 openApp('oaa');
             } else if (e.key === '2') {
+                playSound('open');
                 openApp('events');
             }
         }
@@ -619,18 +644,38 @@ function initOAAApp() {
 let currentSort = 'default';
 
 function initSorting() {
-    const sortButtons = document.querySelectorAll('.sort-btn');
-    sortButtons.forEach(btn => {
+    // Dashboard sort buttons
+    const dashboardButtons = document.querySelectorAll('#oaa-dashboard .sort-btn');
+    dashboardButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             playSound('select');
-            // Update active state
-            sortButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Apply sort
+            // Update active state on both sets
+            updateAllSortButtons(btn.dataset.sort);
             currentSort = btn.dataset.sort;
             renderClassCards();
         });
+    });
+
+    // Class view sort buttons
+    const classButtons = document.querySelectorAll('#class-sort-buttons .sort-btn');
+    classButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            playSound('select');
+            // Update active state on both sets
+            updateAllSortButtons(btn.dataset.sort);
+            currentSort = btn.dataset.sort;
+            // Re-render current class view
+            if (currentClass) {
+                showClassView(currentClass.year, currentClass.className, false);
+            }
+        });
+    });
+}
+
+function updateAllSortButtons(sortValue) {
+    // Update all sort buttons across both views
+    document.querySelectorAll('.sort-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.sort === sortValue);
     });
 }
 
