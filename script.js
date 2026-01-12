@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavButtons();
     initOAAApp();
     initKeyboardNav();
+    initRippleEffect();
 });
 
 // ========================================
@@ -538,4 +539,39 @@ function calculateOverallGrade(stats) {
     ];
     const average = values.reduce((a, b) => a + b, 0) / values.length;
     return getGradeFromValue(average);
+}
+
+// ========================================
+// RIPPLE EFFECT
+// ========================================
+
+function initRippleEffect() {
+    // Add ripple to buttons and interactive elements
+    const rippleTargets = document.querySelectorAll('.nav-btn, .lock-btn, .app-icon-image, .class-card, .student-card');
+
+    rippleTargets.forEach(target => {
+        target.classList.add('ripple-container');
+        target.addEventListener('click', createRipple);
+    });
+}
+
+function createRipple(e) {
+    const element = e.currentTarget;
+    const rect = element.getBoundingClientRect();
+
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = ripple.style.height = size + 'px';
+
+    ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+
+    element.appendChild(ripple);
+
+    // Remove ripple after animation
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
 }
