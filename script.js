@@ -935,7 +935,7 @@ function createClassCard(year, className, students) {
         </div>
         <div class="class-card-students">
             ${previewStudents.map(s => createStudentPreviewHTML(s)).join('')}
-            ${students.length === 0 ? '<div class="empty-class">No students enrolled</div>' : ''}
+            ${students.length === 0 ? `<div class="empty-class">${state.showFavoritesOnly ? 'No favorites in this class' : 'No students enrolled'}</div>` : ''}
         </div>
         ${students.length > 3 ? `<div class="view-all-link">View all ${students.length} students</div>` : ''}
     `;
@@ -1008,7 +1008,8 @@ function showClassView(year, className, addToHistory = true) {
     container.innerHTML = '';
 
     if (students.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 3rem;">No students enrolled</p>';
+        const message = state.showFavoritesOnly ? 'No favorites in this class' : 'No students enrolled';
+        container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 3rem;">${message}</p>`;
     } else {
         students.forEach(student => container.appendChild(createStudentCard(student)));
     }

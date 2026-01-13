@@ -1076,7 +1076,6 @@ body::before {
 .app-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 1.5rem 3rem;
     background: linear-gradient(180deg, rgba(10, 18, 32, 0.95) 0%, rgba(10, 20, 40, 0.9) 100%);
     border-bottom: 1px solid rgba(0, 245, 255, 0.15);
@@ -1087,13 +1086,24 @@ body::before {
     backdrop-filter: blur(8px);
 }
 
+.app-header .nav-group {
+    flex: 1;
+}
+
+.app-header .header-brand {
+    flex: 1;
+    justify-content: center;
+}
+
+.app-header .header-right {
+    flex: 1;
+    justify-content: flex-end;
+}
+
 .header-brand {
     display: flex;
     align-items: baseline;
     gap: 0.4rem;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 .brand-title {
@@ -1555,13 +1565,11 @@ body::before {
 
 .class-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 30px var(--class-hover), 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .class-card:hover::before {
     opacity: 1;
-    border-color: var(--class-hover);
-    box-shadow: 0 0 25px var(--class-hover);
 }
 
 .class-card:focus-visible {
@@ -2338,16 +2346,11 @@ body::before {
     margin-left: auto;
     font-size: 0.75rem;
     color: var(--text-muted);
-    transition: transform 0.3s ease;
+    transition: color 0.2s ease;
 }
 
-.collapsible-content.collapsed + .events-section-header .collapse-icon,
-.events-section.collapsible .events-section-header .collapse-icon {
-    transform: rotate(0deg);
-}
-
-.events-section.collapsible.expanded .collapse-icon {
-    transform: rotate(180deg);
+.events-section.collapsible:hover .collapse-icon {
+    color: var(--cyan);
 }
 
 .collapsible-content {
