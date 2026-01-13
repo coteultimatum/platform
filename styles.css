@@ -198,16 +198,35 @@ body::before {
 
 .boot-letter {
     opacity: 0;
-    animation: bootLetterIn 0.3s ease forwards;
+    animation: bootLetterIn 0.3s ease forwards, bootGlitch 0.1s ease 0.8s 3;
     color: var(--cyan);
     text-shadow: 0 0 30px var(--cyan-glow);
     text-transform: uppercase;
 }
 
-.boot-c { animation-delay: 0.1s; }
-.boot-o { animation-delay: 0.2s; }
-.boot-t { animation-delay: 0.3s; }
-.boot-e { animation-delay: 0.4s; }
+.boot-c { animation-delay: 0.1s, 0.8s; }
+.boot-o { animation-delay: 0.2s, 0.85s; }
+.boot-t { animation-delay: 0.3s, 0.9s; }
+.boot-e { animation-delay: 0.4s, 0.95s; }
+
+@keyframes bootGlitch {
+    0%, 100% {
+        transform: translate(0);
+        text-shadow: 0 0 30px var(--cyan-glow);
+    }
+    25% {
+        transform: translate(-2px, 1px);
+        text-shadow: -2px 0 var(--crimson-light), 2px 0 var(--cyan);
+    }
+    50% {
+        transform: translate(2px, -1px);
+        text-shadow: 2px 0 var(--crimson-light), -2px 0 var(--cyan);
+    }
+    75% {
+        transform: translate(-1px, -1px);
+        text-shadow: -1px 0 var(--crimson-light), 1px 0 var(--cyan);
+    }
+}
 
 .boot-subtitle {
     font-family: 'Orbitron', monospace;
@@ -1980,7 +1999,7 @@ body::before {
         var(--glow-spread),
         0 20px 60px rgba(0, 0, 0, 0.5);
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 2rem auto 0;
     position: relative;
     animation: profileCardIn 0.5s ease;
     transition: box-shadow 0.3s ease;
