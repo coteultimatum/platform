@@ -713,6 +713,7 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    gap: 1rem;
 }
 
 .home-brand {
@@ -725,7 +726,7 @@ body::before {
 
 .home-brand-title {
     font-family: 'Orbitron', monospace;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--cyan);
     letter-spacing: 0.2em;
@@ -735,7 +736,7 @@ body::before {
 
 .home-brand-subtitle {
     font-family: 'Orbitron', monospace;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--crimson-light);
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -1093,16 +1094,16 @@ body::before {
 
 .brand-title {
     font-family: 'Orbitron', monospace;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--cyan);
-    letter-spacing: 0.15em;
-    text-shadow: 0 0 15px var(--cyan-glow);
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 20px var(--cyan-glow);
 }
 
 .brand-subtitle {
     font-family: 'Orbitron', monospace;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 400;
     color: var(--crimson-light);
     letter-spacing: 0.3em;
@@ -1297,6 +1298,92 @@ body::before {
     color: var(--cyan);
     background: rgba(77, 201, 230, 0.15);
     box-shadow: 0 0 10px rgba(77, 201, 230, 0.2);
+}
+
+/* Sort button colors by stat type */
+.sort-btn[data-sort="default"] {
+    color: var(--text-muted);
+}
+.sort-btn[data-sort="default"]:hover {
+    color: var(--cyan);
+    background: rgba(77, 201, 230, 0.1);
+}
+.sort-btn[data-sort="default"].active {
+    color: var(--cyan);
+    background: rgba(77, 201, 230, 0.15);
+    box-shadow: 0 0 10px rgba(77, 201, 230, 0.2);
+}
+
+.sort-btn[data-sort="overall"] {
+    color: #e74c3c;
+}
+.sort-btn[data-sort="overall"]:hover {
+    background: rgba(231, 76, 60, 0.15);
+}
+.sort-btn[data-sort="overall"].active {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.2);
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+.sort-btn[data-sort="academic"] {
+    color: #9b59b6;
+}
+.sort-btn[data-sort="academic"]:hover {
+    background: rgba(155, 89, 182, 0.15);
+}
+.sort-btn[data-sort="academic"].active {
+    color: #9b59b6;
+    background: rgba(155, 89, 182, 0.2);
+    box-shadow: 0 0 10px rgba(155, 89, 182, 0.3);
+}
+
+.sort-btn[data-sort="intelligence"] {
+    color: #f1c40f;
+}
+.sort-btn[data-sort="intelligence"]:hover {
+    background: rgba(241, 196, 15, 0.15);
+}
+.sort-btn[data-sort="intelligence"].active {
+    color: #f1c40f;
+    background: rgba(241, 196, 15, 0.2);
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+}
+
+.sort-btn[data-sort="decision"] {
+    color: #e67e22;
+}
+.sort-btn[data-sort="decision"]:hover {
+    background: rgba(230, 126, 34, 0.15);
+}
+.sort-btn[data-sort="decision"].active {
+    color: #e67e22;
+    background: rgba(230, 126, 34, 0.2);
+    box-shadow: 0 0 10px rgba(230, 126, 34, 0.3);
+}
+
+.sort-btn[data-sort="physical"] {
+    color: #2ecc71;
+}
+.sort-btn[data-sort="physical"]:hover {
+    background: rgba(46, 204, 113, 0.15);
+}
+.sort-btn[data-sort="physical"].active {
+    color: #2ecc71;
+    background: rgba(46, 204, 113, 0.2);
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+}
+
+.sort-btn[data-sort="cooperativeness"] {
+    color: #3498db;
+}
+.sort-btn[data-sort="cooperativeness"]:hover {
+    background: rgba(52, 152, 219, 0.15);
+}
+.sort-btn[data-sort="cooperativeness"].active {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.2);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
 }
 
 /* Search Bar */
