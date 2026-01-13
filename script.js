@@ -1272,7 +1272,7 @@ function showComparison() {
             <div class="comparison-grid" style="grid-template-columns: repeat(${students.length}, 1fr)">
                 ${students.map(s => `
                     <div class="comparison-student">
-                        <div class="comparison-avatar">
+                        <div class="comparison-avatar class-${s.class.toLowerCase()}-glow">
                             ${s.image ? `<img src="${s.image}" alt="${s.name}">` : `<div class="avatar-placeholder">${getInitials(s.name)}</div>`}
                         </div>
                         <h3>${s.name}</h3>
@@ -1288,7 +1288,7 @@ function showComparison() {
                         <div class="comparison-stat-row">
                             <span class="stat-name">${name}</span>
                             <div class="stat-values">
-                                ${students.map(s => `<span class="stat-val ${getBestClass(students, key, s)}">${s.stats[key]}</span>`).join('')}
+                                ${students.map(s => `<span class="stat-val ${getBestClass(students, key, s)} stat-color-${key}">${s.stats[key]}</span>`).join('')}
                             </div>
                         </div>
                     `;
@@ -1300,11 +1300,13 @@ function showComparison() {
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('active'), 10);
 
-    modal.querySelector('.comparison-close').addEventListener('click', () => {
+    const closeBtn = modal.querySelector('.comparison-close');
+    closeBtn.addEventListener('click', () => {
         modal.classList.remove('active');
         setTimeout(() => modal.remove(), 300);
         playSound('back');
     });
+    closeBtn.addEventListener('mouseenter', () => playSound('hover'));
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -1318,6 +1320,16 @@ function showComparison() {
 function getBestClass(students, key, current) {
     const max = Math.max(...students.map(s => s.stats[key]));
     return current.stats[key] === max ? 'best' : '';
+}
+
+function getClassGlowColor(className) {
+    const colors = {
+        'A': 'rgba(254, 205, 211, 0.5)',
+        'B': 'rgba(253, 164, 175, 0.5)',
+        'C': 'rgba(225, 29, 72, 0.5)',
+        'D': 'rgba(136, 19, 55, 0.5)'
+    };
+    return colors[className] || 'rgba(77, 201, 230, 0.3)';
 }
 
 // ========================================
