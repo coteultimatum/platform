@@ -1633,12 +1633,53 @@ function initAdminApp() {
         resetBtn.addEventListener('mouseenter', () => playSound('hover'));
     }
 
-    // Add sounds to class point inputs
+    // Add sounds and number formatting to class point inputs
     const adminApp = document.getElementById('admin-app');
     if (adminApp) {
         adminApp.querySelectorAll('.admin-class-input input').forEach(input => {
-            input.addEventListener('focus', () => playSound('select'));
+            input.addEventListener('focus', () => {
+                playSound('select');
+                // Remove commas on focus for editing
+                input.value = input.value.replace(/,/g, '');
+            });
+            input.addEventListener('blur', () => {
+                // Format with commas on blur
+                const num = parseInt(input.value.replace(/,/g, '')) || 0;
+                input.value = num.toLocaleString();
+            });
             input.addEventListener('input', () => playSound('type'));
+
+            // Format initial values
+            const num = parseInt(input.value) || 0;
+            input.value = num.toLocaleString();
+        });
+    }
+
+    // Modal event listeners
+    const modalConfirm = document.getElementById('admin-modal-confirm');
+    const modalCancel = document.getElementById('admin-modal-cancel');
+    const modalOverlay = document.getElementById('admin-confirm-modal');
+
+    if (modalConfirm) {
+        modalConfirm.addEventListener('click', confirmAdminSave);
+        modalConfirm.addEventListener('mouseenter', () => playSound('hover'));
+    }
+
+    if (modalCancel) {
+        modalCancel.addEventListener('click', () => {
+            hideSaveConfirmModal();
+            playSound('back');
+        });
+        modalCancel.addEventListener('mouseenter', () => playSound('hover'));
+    }
+
+    // Close modal on overlay click
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                hideSaveConfirmModal();
+                playSound('back');
+            }
         });
     }
 }
@@ -1780,7 +1821,8 @@ function loadAdminPointsFromDB() {
         ['A', 'B', 'C', 'D'].forEach(cls => {
             const input = document.getElementById(`admin-points-${year}-${cls}`);
             if (input && points[year]) {
-                input.value = points[year][cls] || 1000;
+                const value = points[year][cls] || 1000;
+                input.value = value.toLocaleString();
             }
         });
     }
@@ -1792,14 +1834,18 @@ function getAdminPointsFromInputs() {
         points[year] = {};
         ['A', 'B', 'C', 'D'].forEach(cls => {
             const input = document.getElementById(`admin-points-${year}-${cls}`);
-            points[year][cls] = parseInt(input.value) || 0;
+            // Remove commas before parsing
+            points[year][cls] = parseInt(input.value.replace(/,/g, '')) || 0;
         });
     }
     return points;
 }
 
-async function handleAdminSave() {
-    const saveBtn = document.getElementById('admin-save-btn');
+// Store pending changes for confirmation
+let pendingChanges = null;
+let pendingNewPoints = null;
+
+function handleAdminSave() {
     const statusEl = document.getElementById('admin-status');
 
     const newPoints = getAdminPointsFromInputs();
@@ -1814,7 +1860,7 @@ async function handleAdminSave() {
             if (oldVal !== newVal) {
                 const diff = newVal - oldVal;
                 const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-                changes.push(`Year ${year} Class ${cls}: ${oldVal} → ${newVal} (${diffStr})`);
+                changes.push({ text: `Year ${year} Class ${cls}: ${oldVal} → ${newVal} (${diffStr})`, diff });
             }
         });
     }
@@ -1826,6 +1872,47 @@ async function handleAdminSave() {
         return;
     }
 
+    // Store for confirmation
+    pendingChanges = changes;
+    pendingNewPoints = newPoints;
+
+    // Show confirmation modal
+    showSaveConfirmModal(changes);
+}
+
+function showSaveConfirmModal(changes) {
+    const modal = document.getElementById('admin-confirm-modal');
+    const changesContainer = document.getElementById('admin-modal-changes');
+
+    // Populate changes list with colors
+    changesContainer.innerHTML = changes.map(c => {
+        const colorClass = c.diff > 0 ? 'positive' : 'negative';
+        return `<div class="admin-modal-change ${colorClass}">${c.text}</div>`;
+    }).join('');
+
+    modal.style.display = 'flex';
+    playSound('select');
+
+    // Focus confirm button
+    document.getElementById('admin-modal-confirm').focus();
+}
+
+function hideSaveConfirmModal() {
+    const modal = document.getElementById('admin-confirm-modal');
+    modal.style.display = 'none';
+    pendingChanges = null;
+    pendingNewPoints = null;
+}
+
+async function confirmAdminSave() {
+    if (!pendingChanges || !pendingNewPoints) return;
+
+    const saveBtn = document.getElementById('admin-save-btn');
+    const statusEl = document.getElementById('admin-status');
+
+    // Hide modal
+    hideSaveConfirmModal();
+
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saving...';
     saveBtn.classList.add('saving');
@@ -1836,15 +1923,18 @@ async function handleAdminSave() {
     // Minimum delay for visual feedback
     const minDelay = new Promise(resolve => setTimeout(resolve, 600));
 
+    // Convert changes to string format for logging
+    const changeStrings = pendingChanges.map(c => c.text);
+
     try {
         // Save to Firebase (runs in parallel with delay)
         const [success] = await Promise.all([
-            COTEDB.setClassPointsWithLog(newPoints, adminState.displayName || adminState.currentUser, changes),
+            COTEDB.setClassPointsWithLog(pendingNewPoints, adminState.displayName || adminState.currentUser, changeStrings),
             minDelay
         ]);
 
         if (success) {
-            statusEl.textContent = `Saved ${changes.length} change(s)`;
+            statusEl.innerHTML = `<span class="status-checkmark">✓</span> Saved ${pendingChanges.length} change(s)`;
             statusEl.className = 'admin-status success';
             playSound('success');
 
@@ -1893,10 +1983,20 @@ async function loadAdminChangelog() {
                 minute: '2-digit'
             });
 
+            // Colorize each change based on +/-
+            const colorizedChanges = log.changes.map(change => {
+                if (change.includes('(+')) {
+                    return `<span class="changelog-positive">${change}</span>`;
+                } else if (change.includes('(-')) {
+                    return `<span class="changelog-negative">${change}</span>`;
+                }
+                return change;
+            }).join(', ');
+
             return `
                 <div class="admin-changelog-item">
                     <div class="admin-changelog-info">
-                        <div class="admin-changelog-action">${log.changes.join(', ')}</div>
+                        <div class="admin-changelog-action">${colorizedChanges}</div>
                         <div class="admin-changelog-user">${log.user}</div>
                     </div>
                     <div class="admin-changelog-time">${timeStr}</div>
