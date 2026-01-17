@@ -102,6 +102,12 @@ COMPLETED THIS SESSION (2026-01-17)
    - Triggers twice at 0.9s after boot starts
    - Removed separate letter glitch animations
 
+9. CODE CLEANUP
+
+   - Removed unused @keyframes glitch animation (52 lines)
+   - Consolidated duplicate shake animations (loginErrorShake → statusShake)
+   - Deleted deprecated standalone admin.html (admin is in main app now)
+
 ================================================================================
 COMPLETED SESSION 2 (2026-01-13) - DATABASE INTEGRATION
 ================================================================================
@@ -250,7 +256,33 @@ COMPLETED SESSION 2 (2026-01-13) - DATABASE INTEGRATION
 NEXT SESSION - PLANNED FEATURES
 ================================================================================
 
-1. FIREBASE SETUP (User Action Required)
+1. OC CREATOR APP (New Feature)
+
+   Purpose: Allow users to create Original Characters and export for Discord submission
+
+   UI Flow Options (to decide):
+   - Multi-step wizard (guided, one section at a time)
+   - Single page form (all fields visible)
+   - Live card builder (preview updates as you type) ← recommended
+
+   Fields to Collect:
+   - Name, Year (1/2/3), Class preference (A/B/C/D)
+   - 5 OAA stats (Academic, Intelligence, Decision, Physical, Cooperativeness)
+   - Profile image (URL or upload?)
+   - Short bio
+   - Optional: personality traits, backstory, goals
+
+   Open Questions:
+   - Free stat selection or point budget system?
+   - Image upload vs URL paste?
+   - PDF style: simple text or styled ANHS form?
+   - Save progress locally?
+
+   Export:
+   - PDF for Discord forum submission
+   - PNG student card for sharing (optional)
+
+2. FIREBASE SETUP (User Action Required)
    - Create Firebase project at console.firebase.google.com
    - Enable Realtime Database
    - Copy config to database.js FIREBASE_CONFIG
@@ -324,11 +356,10 @@ FILES STRUCTURE
 
 /website/
   index.html                    - Main HTML structure
-  styles.css                    - All styling (~4000 lines)
+  styles.css                    - All styling (~3900 lines)
   script.js                     - All interactivity (~2000 lines)
   students.js                   - Student data and class points (local fallback)
   database.js                   - Firebase database module (~200 lines)
-  admin.html                    - Standalone admin panel (deprecated, use main app)
   firebase-init.json            - Initial database structure reference
   GRVN8MNQY-backdrop_wide.png   - Discord embed image
   SESSION_NOTES.txt             - This file
