@@ -1644,7 +1644,7 @@ async function handleAdminLogin() {
     const password = passwordInput.value;
 
     if (!username || !password) {
-        errorEl.textContent = 'Please enter username and password';
+        showLoginError(errorEl, 'Please enter username and password');
         playSound('error');
         return;
     }
@@ -1677,18 +1677,25 @@ async function handleAdminLogin() {
             playSound('success');
             showAdminPanel();
         } else {
-            errorEl.textContent = 'Invalid credentials';
+            showLoginError(errorEl, 'Invalid credentials');
             loginBtn.disabled = false;
             loginBtn.textContent = 'Sign In';
             playSound('error');
         }
     } catch (error) {
         console.error('Login error:', error);
-        errorEl.textContent = 'Connection error. Try again.';
+        showLoginError(errorEl, 'Connection error. Try again.');
         loginBtn.disabled = false;
         loginBtn.textContent = 'Sign In';
         playSound('error');
     }
+}
+
+// Helper to show login error with animation re-trigger
+function showLoginError(errorEl, message) {
+    errorEl.textContent = '';
+    errorEl.offsetHeight; // Force reflow
+    errorEl.textContent = message;
 }
 
 function handleAdminLogout() {
