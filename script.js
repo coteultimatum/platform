@@ -20,7 +20,12 @@ const state = {
     favorites: JSON.parse(localStorage.getItem('cote-favorites') || '[]'),
     compareList: [],
     compareMode: false,
-    showFavoritesOnly: false
+    showFavoritesOnly: false,
+    // Database state
+    dbConnected: false,
+    dbClassPoints: null,
+    previousPoints: JSON.parse(localStorage.getItem('cote-previous-points') || 'null'),
+    pointDeltas: {}
 };
 
 // Audio context
@@ -237,6 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleSections();
     initTypingEffect();
     initParallax();
+    initDatabase();
+    createDbStatusIndicator();
 });
 
 // ========================================
@@ -320,6 +327,12 @@ function initKeyboardHintClicks() {
                     if (state.currentScreen === 'home-screen') {
                         playSound('open');
                         openApp('events');
+                    }
+                    break;
+                case '3':
+                    if (state.currentScreen === 'home-screen') {
+                        playSound('open');
+                        openApp('admin');
                     }
                     break;
                 case 'LOCK':
@@ -506,7 +519,7 @@ function updateTime() {
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
     const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-    ['lock-time', 'home-time', 'oaa-time', 'events-time'].forEach(id => {
+    ['lock-time', 'home-time', 'oaa-time', 'events-time', 'admin-time'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = timeStr;
     });
@@ -623,6 +636,9 @@ function openApp(appId) {
         showOAAView('oaa-dashboard', false);
     } else if (appId === 'events') {
         showScreen('events-app');
+    } else if (appId === 'admin') {
+        showScreen('admin-app');
+        initAdminApp();
     }
 }
 
@@ -721,6 +737,9 @@ function initKeyboardNav() {
             } else if (e.key === '2') {
                 playSound('open');
                 openApp('events');
+            } else if (e.key === '3') {
+                playSound('open');
+                openApp('admin');
             }
         }
 
@@ -918,9 +937,19 @@ function createClassCard(year, className, students) {
     card.className = `class-card class-${className.toLowerCase()}`;
 
     const previewStudents = students.slice(0, 3);
-    const points = (typeof classPoints !== 'undefined' && classPoints[year]) ? classPoints[year][className] || 0 : 0;
+    const activePoints = getActiveClassPoints();
+    const points = (activePoints && activePoints[year]) ? activePoints[year][className] || 0 : 0;
+    const delta = getPointDelta(year, className);
     const rank = getClassRank(year, className);
     const rankSuffix = ['', 'st', 'nd', 'rd'][rank] || 'th';
+
+    // Build delta indicator HTML
+    let deltaHTML = '';
+    if (delta !== 0) {
+        const deltaClass = delta > 0 ? 'positive' : 'negative';
+        const deltaSign = delta > 0 ? '+' : '';
+        deltaHTML = `<span class="points-delta ${deltaClass}"><span class="delta-arrow"></span>${deltaSign}${delta}</span>`;
+    }
 
     card.innerHTML = `
         <div class="class-card-header">
@@ -930,7 +959,7 @@ function createClassCard(year, className, students) {
             </div>
             <div class="class-card-stats">
                 <div class="class-rank">${rank}${rankSuffix}</div>
-                <span class="class-points">${points.toLocaleString()} CP</span>
+                <span class="class-points">${points.toLocaleString()} CP${deltaHTML}</span>
             </div>
         </div>
         <div class="class-card-students">
@@ -1350,8 +1379,9 @@ function getStudentsByClass(year, className) {
 }
 
 function getClassRank(year, className) {
-    if (typeof classPoints === 'undefined' || !classPoints[year]) return 0;
-    const sorted = Object.entries(classPoints[year]).sort((a, b) => b[1] - a[1]);
+    const activePoints = getActiveClassPoints();
+    if (!activePoints || !activePoints[year]) return 0;
+    const sorted = Object.entries(activePoints[year]).sort((a, b) => b[1] - a[1]);
     return sorted.findIndex(([c]) => c === className) + 1;
 }
 
@@ -1389,4 +1419,407 @@ function attachHoverSounds(container) {
     container.querySelectorAll(selectors).forEach(el => {
         el.addEventListener('mouseenter', () => playSound('hover'));
     });
+}
+
+// ========================================
+// DATABASE INTEGRATION
+// ========================================
+
+function initDatabase() {
+    // Check if COTEDB module is loaded
+    if (typeof COTEDB === 'undefined') {
+        console.log('Database module not loaded, using local data');
+        updateDbStatus('local');
+        return;
+    }
+
+    // Add listener for database events
+    COTEDB.addListener(handleDatabaseEvent);
+
+    // Initialize database connection
+    COTEDB.init().then(success => {
+        if (success) {
+            console.log('Database connected');
+            state.dbConnected = true;
+            updateDbStatus('connected');
+        } else {
+            console.log('Database not configured, using local data');
+            updateDbStatus('local');
+        }
+    }).catch(err => {
+        console.error('Database error:', err);
+        updateDbStatus('disconnected');
+    });
+}
+
+function handleDatabaseEvent(event, data) {
+    switch (event) {
+        case 'connection':
+            state.dbConnected = data;
+            updateDbStatus(data ? 'connected' : 'disconnected');
+            break;
+
+        case 'classPoints':
+            handleClassPointsUpdate(data.points, data.deltas);
+            break;
+    }
+}
+
+function handleClassPointsUpdate(newPoints, deltas) {
+    // Store previous points for next session
+    if (state.dbClassPoints) {
+        localStorage.setItem('cote-previous-points', JSON.stringify(state.dbClassPoints));
+    }
+
+    // Update state
+    state.dbClassPoints = newPoints;
+    state.pointDeltas = deltas;
+
+    // Re-render class cards to show new points and deltas
+    if (state.currentOAAView === 'oaa-dashboard') {
+        renderClassCards();
+        playSound('success');
+    }
+}
+
+function getActiveClassPoints() {
+    // Use database points if available, otherwise use local
+    return state.dbClassPoints || (typeof classPoints !== 'undefined' ? classPoints : null);
+}
+
+function getPointDelta(year, className) {
+    // First check real-time deltas from database
+    if (state.pointDeltas && state.pointDeltas[year] && state.pointDeltas[year][className]) {
+        return state.pointDeltas[year][className];
+    }
+
+    // Otherwise calculate from stored previous points
+    if (!state.previousPoints) return 0;
+
+    const activePoints = getActiveClassPoints();
+    if (!activePoints) return 0;
+
+    const prev = state.previousPoints[year]?.[className] || 0;
+    const curr = activePoints[year]?.[className] || 0;
+
+    return curr - prev;
+}
+
+// Database status indicator
+function createDbStatusIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'db-status';
+    indicator.className = 'db-status local';
+    indicator.innerHTML = `
+        <div class="db-status-dot"></div>
+        <span class="db-status-text">Local Data</span>
+    `;
+    document.body.appendChild(indicator);
+}
+
+function updateDbStatus(status) {
+    const indicator = document.getElementById('db-status');
+    if (!indicator) return;
+
+    indicator.classList.remove('connected', 'disconnected', 'local');
+    indicator.classList.add(status);
+
+    const textEl = indicator.querySelector('.db-status-text');
+    if (textEl) {
+        switch (status) {
+            case 'connected':
+                textEl.textContent = 'Live';
+                break;
+            case 'disconnected':
+                textEl.textContent = 'Offline';
+                break;
+            case 'local':
+                textEl.textContent = 'Local Data';
+                break;
+        }
+    }
+}
+
+// Store current points when leaving page (for delta calculation next time)
+window.addEventListener('beforeunload', () => {
+    const activePoints = getActiveClassPoints();
+    if (activePoints) {
+        localStorage.setItem('cote-previous-points', JSON.stringify(activePoints));
+    }
+});
+
+// ========================================
+// ADMIN APP
+// ========================================
+
+const adminState = {
+    loggedIn: false,
+    currentUser: null,
+    displayName: null,
+    initialized: false
+};
+
+function initAdminApp() {
+    if (adminState.initialized) {
+        // Already initialized, just refresh view based on login state
+        if (adminState.loggedIn) {
+            showAdminPanel();
+        }
+        return;
+    }
+
+    adminState.initialized = true;
+
+    // Get DOM elements
+    const loginBtn = document.getElementById('admin-login-btn');
+    const logoutBtn = document.getElementById('admin-logout-btn');
+    const saveBtn = document.getElementById('admin-save-btn');
+    const resetBtn = document.getElementById('admin-reset-btn');
+    const usernameInput = document.getElementById('admin-username');
+    const passwordInput = document.getElementById('admin-password');
+
+    // Login button
+    if (loginBtn) {
+        loginBtn.addEventListener('click', handleAdminLogin);
+    }
+
+    // Enter key on password field
+    if (passwordInput) {
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handleAdminLogin();
+            }
+        });
+    }
+
+    // Enter key on username field moves to password
+    if (usernameInput) {
+        usernameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                passwordInput.focus();
+            }
+        });
+    }
+
+    // Logout button
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleAdminLogout);
+    }
+
+    // Save button
+    if (saveBtn) {
+        saveBtn.addEventListener('click', handleAdminSave);
+    }
+
+    // Reset button
+    if (resetBtn) {
+        resetBtn.addEventListener('click', loadAdminPointsFromDB);
+    }
+}
+
+async function handleAdminLogin() {
+    const usernameInput = document.getElementById('admin-username');
+    const passwordInput = document.getElementById('admin-password');
+    const errorEl = document.getElementById('admin-login-error');
+    const loginBtn = document.getElementById('admin-login-btn');
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!username || !password) {
+        errorEl.textContent = 'Please enter username and password';
+        return;
+    }
+
+    // Disable button while checking
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in...';
+    errorEl.textContent = '';
+
+    try {
+        // Check credentials against Firebase
+        const result = await COTEDB.verifyAdmin(username, password);
+
+        if (result.success) {
+            adminState.loggedIn = true;
+            adminState.currentUser = username;
+            adminState.displayName = result.displayName;
+
+            // Clear inputs
+            usernameInput.value = '';
+            passwordInput.value = '';
+
+            playSound('select');
+            showAdminPanel();
+        } else {
+            errorEl.textContent = 'Invalid username or password';
+            playSound('back');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        errorEl.textContent = 'Connection error. Please try again.';
+    }
+
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Sign In';
+}
+
+function handleAdminLogout() {
+    adminState.loggedIn = false;
+    adminState.currentUser = null;
+    adminState.displayName = null;
+
+    playSound('back');
+    showAdminLogin();
+}
+
+function showAdminLogin() {
+    const loginView = document.getElementById('admin-login-view');
+    const panelView = document.getElementById('admin-panel-view');
+
+    if (loginView) loginView.style.display = 'block';
+    if (panelView) panelView.style.display = 'none';
+}
+
+function showAdminPanel() {
+    const loginView = document.getElementById('admin-login-view');
+    const panelView = document.getElementById('admin-panel-view');
+    const userName = document.getElementById('admin-user-name');
+
+    if (loginView) loginView.style.display = 'none';
+    if (panelView) panelView.style.display = 'block';
+    if (userName) userName.textContent = adminState.displayName || adminState.currentUser;
+
+    // Load current points
+    loadAdminPointsFromDB();
+
+    // Load changelog
+    loadAdminChangelog();
+}
+
+function loadAdminPointsFromDB() {
+    const points = getActiveClassPoints();
+    if (!points) return;
+
+    for (let year = 1; year <= 3; year++) {
+        ['A', 'B', 'C', 'D'].forEach(cls => {
+            const input = document.getElementById(`admin-points-${year}-${cls}`);
+            if (input && points[year]) {
+                input.value = points[year][cls] || 1000;
+            }
+        });
+    }
+}
+
+function getAdminPointsFromInputs() {
+    const points = {};
+    for (let year = 1; year <= 3; year++) {
+        points[year] = {};
+        ['A', 'B', 'C', 'D'].forEach(cls => {
+            const input = document.getElementById(`admin-points-${year}-${cls}`);
+            points[year][cls] = parseInt(input.value) || 0;
+        });
+    }
+    return points;
+}
+
+async function handleAdminSave() {
+    const saveBtn = document.getElementById('admin-save-btn');
+    const statusEl = document.getElementById('admin-status');
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+    statusEl.className = 'admin-status';
+    statusEl.textContent = '';
+
+    try {
+        const newPoints = getAdminPointsFromInputs();
+        const oldPoints = getActiveClassPoints();
+
+        // Build list of changes for logging
+        const changes = [];
+        for (let year = 1; year <= 3; year++) {
+            ['A', 'B', 'C', 'D'].forEach(cls => {
+                const oldVal = oldPoints?.[year]?.[cls] || 0;
+                const newVal = newPoints[year][cls];
+                if (oldVal !== newVal) {
+                    const diff = newVal - oldVal;
+                    const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+                    changes.push(`Year ${year} Class ${cls}: ${oldVal} → ${newVal} (${diffStr})`);
+                }
+            });
+        }
+
+        if (changes.length === 0) {
+            statusEl.textContent = 'No changes to save';
+            statusEl.className = 'admin-status error';
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Changes';
+            return;
+        }
+
+        // Save to Firebase
+        const success = await COTEDB.setClassPointsWithLog(newPoints, adminState.displayName || adminState.currentUser, changes);
+
+        if (success) {
+            statusEl.textContent = `Saved ${changes.length} change(s) successfully!`;
+            statusEl.className = 'admin-status success';
+            playSound('select');
+
+            // Refresh changelog
+            loadAdminChangelog();
+
+            // Auto-hide success message
+            setTimeout(() => {
+                statusEl.className = 'admin-status';
+            }, 4000);
+        } else {
+            statusEl.textContent = 'Failed to save. Please try again.';
+            statusEl.className = 'admin-status error';
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        statusEl.textContent = 'Error saving changes: ' + error.message;
+        statusEl.className = 'admin-status error';
+    }
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Changes';
+}
+
+async function loadAdminChangelog() {
+    const container = document.getElementById('admin-changelog');
+    if (!container) return;
+
+    try {
+        const logs = await COTEDB.getChangelog(10);
+
+        if (!logs || logs.length === 0) {
+            container.innerHTML = '<div class="admin-changelog-empty">No changes recorded</div>';
+            return;
+        }
+
+        container.innerHTML = logs.map(log => {
+            const date = new Date(log.timestamp);
+            const timeStr = date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            return `
+                <div class="admin-changelog-item">
+                    <div class="admin-changelog-info">
+                        <div class="admin-changelog-action">${log.changes.join(', ')}</div>
+                        <div class="admin-changelog-user">${log.user}</div>
+                    </div>
+                    <div class="admin-changelog-time">${timeStr}</div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading changelog:', error);
+        container.innerHTML = '<div class="admin-changelog-empty">Error loading changes</div>';
+    }
 }
