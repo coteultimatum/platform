@@ -1957,6 +1957,17 @@ async function confirmAdminSave() {
     // Convert changes to string format for logging
     const changeStrings = pendingChanges.map(c => c.text);
 
+    // Check if database is initialized
+    if (!COTEDB.isInitialized()) {
+        statusEl.textContent = 'Database not connected. Changes saved locally only.';
+        statusEl.className = 'admin-status error';
+        playSound('error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+        saveBtn.classList.remove('saving');
+        return;
+    }
+
     // Timeout wrapper to prevent hanging forever
     const withTimeout = (promise, ms) => {
         const timeout = new Promise((_, reject) =>
