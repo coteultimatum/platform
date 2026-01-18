@@ -2315,6 +2315,7 @@ function initCreatorApp() {
         imageInput.addEventListener('input', (e) => {
             creatorState.character.image = e.target.value;
             updateAvatarPreview(e.target.value);
+            playSound('type');
         });
         imageInput.addEventListener('focus', () => playSound('select'));
     }
@@ -2701,10 +2702,6 @@ function updateCreatorPreview() {
             <div class="preview-header-info">
                 <h2 class="preview-name">${char.name || 'Unnamed Character'}</h2>
                 <p class="preview-class-info">${char.year}${yearSuffix} Year - Class ${char.class || '?'}</p>
-            </div>
-            <div class="preview-id-box">
-                <span class="preview-id-label">OC</span>
-                <span class="preview-id-value">NEW</span>
             </div>
         </div>
         <div class="preview-card-body">

@@ -4350,61 +4350,61 @@ body::before {
     opacity: 0.7;
 }
 
-/* Class-colored buttons - visible even when not selected */
+/* Class-colored buttons - pink/red gradient (A=lightest, D=darkest) */
 .creator-select-btn.class-a-btn {
-    border-color: rgba(254, 205, 211, 0.3);
+    border-color: rgba(254, 205, 211, 0.4);
 }
 .creator-select-btn.class-a-btn:hover {
-    border-color: rgba(254, 205, 211, 0.5);
-    background: rgba(254, 205, 211, 0.08);
+    border-color: rgba(254, 205, 211, 0.6);
+    background: rgba(254, 205, 211, 0.1);
 }
 .creator-select-btn.class-a-btn.active {
-    border-color: #fecdd3;
+    border-color: var(--class-a);
     background: rgba(254, 205, 211, 0.2);
-    color: #fecdd3;
-    box-shadow: 0 0 15px rgba(254, 205, 211, 0.3);
+    color: var(--class-a);
+    box-shadow: 0 0 15px var(--class-a-glow);
 }
 
 .creator-select-btn.class-b-btn {
-    border-color: rgba(74, 222, 128, 0.3);
+    border-color: rgba(253, 164, 175, 0.4);
 }
 .creator-select-btn.class-b-btn:hover {
-    border-color: rgba(74, 222, 128, 0.5);
-    background: rgba(74, 222, 128, 0.08);
+    border-color: rgba(253, 164, 175, 0.6);
+    background: rgba(253, 164, 175, 0.1);
 }
 .creator-select-btn.class-b-btn.active {
-    border-color: #4ade80;
-    background: rgba(74, 222, 128, 0.2);
-    color: #4ade80;
-    box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+    border-color: var(--class-b);
+    background: rgba(253, 164, 175, 0.2);
+    color: var(--class-b);
+    box-shadow: 0 0 15px var(--class-b-glow);
 }
 
 .creator-select-btn.class-c-btn {
-    border-color: rgba(250, 204, 21, 0.3);
+    border-color: rgba(225, 29, 72, 0.4);
 }
 .creator-select-btn.class-c-btn:hover {
-    border-color: rgba(250, 204, 21, 0.5);
-    background: rgba(250, 204, 21, 0.08);
+    border-color: rgba(225, 29, 72, 0.6);
+    background: rgba(225, 29, 72, 0.1);
 }
 .creator-select-btn.class-c-btn.active {
-    border-color: #facc15;
-    background: rgba(250, 204, 21, 0.2);
-    color: #facc15;
-    box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+    border-color: var(--class-c);
+    background: rgba(225, 29, 72, 0.2);
+    color: var(--class-c);
+    box-shadow: 0 0 15px var(--class-c-glow);
 }
 
 .creator-select-btn.class-d-btn {
-    border-color: rgba(239, 68, 68, 0.3);
+    border-color: rgba(136, 19, 55, 0.4);
 }
 .creator-select-btn.class-d-btn:hover {
-    border-color: rgba(239, 68, 68, 0.5);
-    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(136, 19, 55, 0.6);
+    background: rgba(136, 19, 55, 0.15);
 }
 .creator-select-btn.class-d-btn.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    border-color: var(--class-d);
+    background: rgba(136, 19, 55, 0.25);
+    color: #f472b6;
+    box-shadow: 0 0 15px var(--class-d-glow);
 }
 
 /* Overall Grade Badge */
@@ -4649,10 +4649,10 @@ body::before {
 }
 
 .creator-btn {
-    padding: 0.75rem 1.5rem;
+    padding: 0.875rem 1.75rem;
     border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -4661,28 +4661,33 @@ body::before {
 }
 
 .creator-btn.primary {
-    background: var(--accent);
+    background: var(--cyan);
     border: none;
-    color: var(--bg-dark);
+    color: var(--bg-primary);
 }
 
 .creator-btn.primary:hover {
-    background: #3db8d4;
+    background: var(--cyan-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--cyan-glow);
 }
 
 .creator-btn.secondary {
     background: transparent;
-    border: 1px solid var(--border-color);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     color: var(--text-secondary);
 }
 
 .creator-btn.secondary:hover {
-    border-color: var(--text-muted);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: var(--text-primary);
+    transform: translateY(-1px);
 }
 
 .creator-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
+    transform: none !important;
 }
 
 /* Export Section */
@@ -4742,29 +4747,6 @@ body::before {
 .preview-class-info {
     color: var(--text-secondary);
     font-size: 1rem;
-}
-
-.preview-id-box {
-    text-align: center;
-    padding: 0.6rem 1rem;
-    border: 1px solid var(--cyan);
-    border-radius: var(--border-radius-sm);
-    background: rgba(0, 245, 255, 0.05);
-}
-
-.preview-id-label {
-    display: block;
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    margin-bottom: 0.2rem;
-    letter-spacing: 0.1em;
-}
-
-.preview-id-value {
-    font-family: 'Orbitron', monospace;
-    font-size: 1rem;
-    color: var(--cyan);
-    text-shadow: 0 0 10px var(--cyan-glow);
 }
 
 /* Preview Card Body */
@@ -5013,11 +4995,26 @@ body::before {
 }
 
 .creator-export-actions .creator-btn {
-    min-width: 160px;
+    min-width: 180px;
+    justify-content: center;
 }
 
-.export-btn {
-    padding: 0.85rem 2rem;
+.creator-export-actions .creator-btn.primary {
+    padding: 1rem 2rem;
+}
+
+.creator-export-actions .creator-btn.secondary {
+    padding: 1rem 2rem;
+    border: 2px solid var(--crimson);
+    color: var(--crimson);
+    background: rgba(154, 46, 72, 0.1);
+}
+
+.creator-export-actions .creator-btn.secondary:hover {
+    background: rgba(154, 46, 72, 0.2);
+    border-color: var(--crimson);
+    color: var(--crimson);
+    box-shadow: 0 4px 15px rgba(154, 46, 72, 0.3);
 }
 
 /* Trait Quiz Modal */
