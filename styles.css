@@ -2008,6 +2008,43 @@ body::before {
     text-transform: uppercase;
 }
 
+/* Student Card Stat Preview Mini Bars */
+.student-card-stats-preview {
+    display: flex;
+    gap: 2px;
+    margin-top: 0.5rem;
+}
+
+.stat-mini-bar {
+    width: 4px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-mini-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--bar-height, 8px);
+    border-radius: 2px;
+    transition: height 0.3s ease, filter 0.2s ease;
+}
+
+.stat-mini-bar.stat-academic::after { background: #9b59b6; }
+.stat-mini-bar.stat-intelligence::after { background: #f1c40f; }
+.stat-mini-bar.stat-decision::after { background: #e67e22; }
+.stat-mini-bar.stat-physical::after { background: #2ecc71; }
+.stat-mini-bar.stat-cooperativeness::after { background: #3498db; }
+
+.student-card:hover .stat-mini-bar::after {
+    filter: brightness(1.2);
+}
+
 /* ========================================
    OAA APP - PROFILE VIEW
    ======================================== */
@@ -2430,7 +2467,12 @@ body::before {
 .section-indicator.standby {
     background: var(--text-muted);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-    animation: none;
+    animation: standbyBlink 4s ease-in-out infinite;
+}
+
+@keyframes standbyBlink {
+    0%, 90%, 100% { opacity: 0.4; }
+    95% { opacity: 1; }
 }
 
 .section-indicator.active {
@@ -2473,6 +2515,26 @@ body::before {
     align-items: center;
     gap: 1.5rem;
     color: var(--text-muted);
+    position: relative;
+    overflow: hidden;
+}
+
+.standby-state::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(77, 201, 230, 0.3), transparent);
+    animation: scanLine 4s linear infinite;
+}
+
+@keyframes scanLine {
+    0% { left: -100%; top: 0; }
+    50% { left: 100%; top: 0; }
+    50.01% { left: -100%; top: 100%; }
+    100% { left: 100%; top: 100%; }
 }
 
 .standby-icon {
@@ -2481,7 +2543,13 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.4;
+    opacity: 0.5;
+    animation: standbyPulse 3s ease-in-out infinite;
+}
+
+@keyframes standbyPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
 }
 
 .standby-icon svg {
@@ -3558,6 +3626,16 @@ body::before {
     box-shadow: 0 0 0 2px var(--cyan-subtle);
 }
 
+.admin-class-input input.changed {
+    border-color: var(--crimson-light);
+    box-shadow: 0 0 8px rgba(154, 46, 72, 0.3);
+}
+
+.admin-class-input input.changed:focus {
+    border-color: var(--crimson-light);
+    box-shadow: 0 0 0 2px rgba(154, 46, 72, 0.2), 0 0 12px rgba(154, 46, 72, 0.3);
+}
+
 .admin-class-input input::-webkit-inner-spin-button,
 .admin-class-input input::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -3663,28 +3741,53 @@ body::before {
 
 /* Changelog */
 .admin-changelog {
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--cyan-dim) transparent;
+}
+
+.admin-changelog::-webkit-scrollbar {
+    width: 4px;
+}
+
+.admin-changelog::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-changelog::-webkit-scrollbar-thumb {
+    background: var(--cyan-dim);
+    border-radius: 2px;
 }
 
 .admin-changelog-empty {
     text-align: center;
     color: var(--text-muted);
-    padding: 1rem;
+    padding: 2rem 1rem;
     font-size: 0.85rem;
+    opacity: 0.6;
 }
 
 .admin-changelog-item {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--bg-tertiary);
+    padding: 0.875rem 1rem;
+    border-left: 2px solid transparent;
+    margin-bottom: 0.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0 6px 6px 0;
     font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.admin-changelog-item:hover {
+    background: rgba(77, 201, 230, 0.05);
+    border-left-color: var(--cyan-dim);
 }
 
 .admin-changelog-item:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .admin-changelog-info {
@@ -3693,20 +3796,36 @@ body::before {
 
 .admin-changelog-action {
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
+    line-height: 1.4;
 }
 
 .admin-changelog-user {
     color: var(--cyan);
     font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.admin-changelog-user::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    opacity: 0.6;
 }
 
 .changelog-positive {
     color: #22c55e;
+    font-weight: 500;
 }
 
 .changelog-negative {
     color: #ef4444;
+    font-weight: 500;
 }
 
 /* Save Confirmation Modal */
@@ -4729,31 +4848,24 @@ body::before {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    padding: 1rem 0.5rem;
+    padding: 0.75rem 0.5rem;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
 }
 
-.trait-quiz-card::before {
+.trait-quiz-card::after {
     content: 'TAKE QUIZ';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 0.35rem;
-    background: rgba(154, 46, 72, 0.8);
-    color: white;
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: 700;
-    text-align: center;
     letter-spacing: 0.1em;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
+    color: var(--crimson-light);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    margin-top: 0.25rem;
 }
 
 .trait-quiz-card:hover {
@@ -4763,8 +4875,8 @@ body::before {
     box-shadow: 0 8px 20px rgba(154, 46, 72, 0.2);
 }
 
-.trait-quiz-card:hover::before {
-    transform: translateY(0);
+.trait-quiz-card:hover::after {
+    opacity: 1;
 }
 
 .trait-quiz-card.completed {
@@ -4772,15 +4884,19 @@ body::before {
     background: rgba(34, 197, 94, 0.1);
 }
 
-.trait-quiz-card.completed::before {
-    content: 'COMPLETED';
-    background: rgba(34, 197, 94, 0.8);
-    transform: translateY(0);
+.trait-quiz-card.completed::after {
+    content: 'RETAKE';
+    color: #22c55e;
+    opacity: 0;
 }
 
 .trait-quiz-card.completed:hover {
     border-color: #22c55e;
     box-shadow: 0 8px 20px rgba(34, 197, 94, 0.2);
+}
+
+.trait-quiz-card.completed:hover::after {
+    opacity: 1;
 }
 
 .trait-quiz-card-icon {
@@ -4830,36 +4946,13 @@ body::before {
 }
 
 .trait-quiz-card-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.trait-quiz-card-result {
-    font-size: 0.65rem;
-    min-height: 1.2rem;
-}
-
-.trait-quiz-card-result:empty {
-    display: none;
-}
-
-.trait-quiz-card-result .trait-badge {
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-weight: 600;
-}
-
-.trait-quiz-card-result .trait-badge.positive {
-    background: rgba(34, 197, 94, 0.2);
-    color: #22c55e;
-}
-
-.trait-quiz-card-result .trait-badge.negative {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    letter-spacing: 0.03em;
+    text-align: center;
+    line-height: 1.3;
 }
 
 /* Hide old quiz button since we have the cards now */
@@ -5662,26 +5755,12 @@ body::before {
     border-radius: 12px;
     padding: 1.25rem;
     margin-bottom: 1.25rem;
-    position: relative;
-}
-
-.trait-quiz-question-card::before {
-    content: '"';
-    position: absolute;
-    top: 0.5rem;
-    left: 1rem;
-    font-size: 2.5rem;
-    color: var(--crimson);
-    opacity: 0.3;
-    font-family: Georgia, serif;
-    line-height: 1;
 }
 
 .trait-quiz-question {
     font-size: 1.05rem;
     color: var(--text-primary);
     line-height: 1.6;
-    padding-left: 1rem;
 }
 
 .trait-quiz-options {

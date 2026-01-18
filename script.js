@@ -1091,6 +1091,14 @@ function createStudentCard(student) {
     card.className = `student-card ${isComparing ? 'comparing' : ''}`;
     card.dataset.studentId = student.id;
 
+    // Create mini stat bars HTML
+    const statKeys = ['academic', 'intelligence', 'decision', 'physical', 'cooperativeness'];
+    const miniStatsHTML = statKeys.map(stat => {
+        const value = student.stats[stat] || 50;
+        const height = Math.round((value / 100) * 16);
+        return `<div class="stat-mini-bar stat-${stat}" style="--bar-height: ${height}px;"></div>`;
+    }).join('');
+
     card.innerHTML = `
         ${state.compareMode ? `<div class="compare-checkbox ${isComparing ? 'checked' : ''}"></div>` : ''}
         ${student.image
@@ -1099,6 +1107,7 @@ function createStudentCard(student) {
         <div class="student-card-info">
             <div class="student-card-name">${student.name} ${isFavorite ? '<span class="favorite-star">★</span>' : ''}</div>
             <div class="student-card-class">${student.year}${getYearSuffix(student.year)} Year - Class ${student.class}</div>
+            <div class="student-card-stats-preview">${miniStatsHTML}</div>
         </div>
         <div class="student-card-rating">
             <span class="rating-grade">${calculateOverallGrade(student.stats)}</span>
@@ -1593,7 +1602,8 @@ const adminState = {
     loggedIn: false,
     currentUser: null,
     displayName: null,
-    initialized: false
+    initialized: false,
+    originalPoints: {} // Track original values for change detection
 };
 
 function initAdminApp() {
@@ -1677,6 +1687,19 @@ function initAdminApp() {
                 // Format with commas on blur
                 const num = parseInt(input.value.replace(/,/g, '')) || 0;
                 input.value = num.toLocaleString();
+
+                // Check if value changed from original
+                const inputId = input.id; // format: admin-points-{year}-{class}
+                const parts = inputId.split('-');
+                const year = parseInt(parts[2]);
+                const cls = parts[3];
+                const original = adminState.originalPoints[year]?.[cls] || 1000;
+
+                if (num !== original) {
+                    input.classList.add('changed');
+                } else {
+                    input.classList.remove('changed');
+                }
             });
             input.addEventListener('input', () => playSound('type'));
 
@@ -1848,12 +1871,18 @@ function loadAdminPointsFromDB() {
     const points = getActiveClassPoints();
     if (!points) return;
 
+    // Store original values for change detection
+    adminState.originalPoints = {};
+
     for (let year = 1; year <= 3; year++) {
+        adminState.originalPoints[year] = {};
         ['A', 'B', 'C', 'D'].forEach(cls => {
             const input = document.getElementById(`admin-points-${year}-${cls}`);
             if (input && points[year]) {
                 const value = points[year][cls] || 1000;
                 input.value = value.toLocaleString();
+                input.classList.remove('changed');
+                adminState.originalPoints[year][cls] = value;
             }
         });
     }
@@ -2750,11 +2779,6 @@ function finishQuiz() {
     const card = document.querySelector(`.trait-quiz-card[data-category="${category}"]`);
     if (card) {
         card.classList.add('completed');
-        const cardResult = document.getElementById(`trait-card-${category}`);
-        if (cardResult) {
-            const isPositive = traits.positive.includes(resultTrait);
-            cardResult.innerHTML = `<span class="trait-badge ${isPositive ? 'positive' : 'negative'}">${resultTrait}</span>`;
-        }
     }
 
     // Update completion counter
@@ -3191,8 +3215,6 @@ function resetCreator() {
         const card = document.querySelector(`.trait-quiz-card[data-category="${cat}"]`);
         if (card) {
             card.classList.remove('completed');
-            const cardResult = document.getElementById(`trait-card-${cat}`);
-            if (cardResult) cardResult.innerHTML = '';
         }
     });
 
