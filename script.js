@@ -713,8 +713,16 @@ function initKeyboardNav() {
 
             // Close admin student modal if open
             const studentModal = document.getElementById('admin-student-modal');
-            if (studentModal && studentModal.style.display !== 'none') {
+            if (studentModal && studentModal.classList.contains('active')) {
                 closeStudentModal();
+                playSound('back');
+                return;
+            }
+
+            // Close admin save confirmation modal if open
+            const confirmModal = document.getElementById('admin-confirm-modal');
+            if (confirmModal && confirmModal.classList.contains('active')) {
+                hideSaveConfirmModal();
                 playSound('back');
                 return;
             }
