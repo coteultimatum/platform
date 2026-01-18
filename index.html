@@ -117,12 +117,22 @@
                 <div class="app-icon" data-app="creator">
                     <div class="app-icon-image">
                         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Person with plus sign (create character) -->
-                            <circle cx="28" cy="20" r="10" stroke="currentColor" stroke-width="2"/>
-                            <path d="M12 52c0-10 7-18 16-18s16 8 16 18" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="48" cy="44" r="12" stroke="currentColor" stroke-width="2"/>
-                            <line x1="48" y1="38" x2="48" y2="50" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                            <line x1="42" y1="44" x2="54" y2="44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <!-- DNA Helix with sparkle (character creation/genesis) -->
+                            <path d="M20 8c8 4 16 4 24 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M20 18c8-4 16-4 24 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M20 28c8 4 16 4 24 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M20 38c8-4 16-4 24 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M20 48c8 4 16 4 24 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M20 58c8-4 16-4 24 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <!-- Vertical strands -->
+                            <line x1="20" y1="8" x2="20" y2="58" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="44" y1="8" x2="44" y2="58" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <!-- Sparkle/creation effect -->
+                            <circle cx="52" cy="12" r="2" fill="currentColor"/>
+                            <line x1="52" y1="6" x2="52" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="52" y1="16" x2="52" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="46" y1="12" x2="48" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="56" y1="12" x2="58" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <span class="app-name">CREATOR</span>
@@ -816,6 +826,74 @@
 
             <!-- Step 3: Evaluation -->
             <div class="creator-step" id="creator-step-abilities">
+                <!-- Trait Discovery Section - Prominent Quiz CTA -->
+                <div class="trait-discovery-section">
+                    <div class="trait-discovery-header">
+                        <div class="trait-discovery-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </div>
+                        <div class="trait-discovery-text">
+                            <h3>Discover Your Traits</h3>
+                            <p>Take quizzes to reveal character-defining traits for each ability</p>
+                        </div>
+                        <div class="trait-discovery-progress">
+                            <span class="trait-progress-count" id="traits-completed">0</span>
+                            <span class="trait-progress-total">/5</span>
+                        </div>
+                    </div>
+                    <div class="trait-quiz-grid">
+                        <button class="trait-quiz-card" data-category="academic">
+                            <div class="trait-quiz-card-icon stat-academic-bg">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+                                    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                                </svg>
+                            </div>
+                            <span class="trait-quiz-card-label">Academic</span>
+                            <div class="trait-quiz-card-result" id="trait-card-academic"></div>
+                        </button>
+                        <button class="trait-quiz-card" data-category="intelligence">
+                            <div class="trait-quiz-card-icon stat-intelligence-bg">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
+                            </div>
+                            <span class="trait-quiz-card-label">Intelligence</span>
+                            <div class="trait-quiz-card-result" id="trait-card-intelligence"></div>
+                        </button>
+                        <button class="trait-quiz-card" data-category="decision">
+                            <div class="trait-quiz-card-icon stat-decision-bg">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                            </div>
+                            <span class="trait-quiz-card-label">Decision</span>
+                            <div class="trait-quiz-card-result" id="trait-card-decision"></div>
+                        </button>
+                        <button class="trait-quiz-card" data-category="physical">
+                            <div class="trait-quiz-card-icon stat-physical-bg">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                            </div>
+                            <span class="trait-quiz-card-label">Physical</span>
+                            <div class="trait-quiz-card-result" id="trait-card-physical"></div>
+                        </button>
+                        <button class="trait-quiz-card" data-category="cooperativeness">
+                            <div class="trait-quiz-card-icon stat-cooperativeness-bg">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                            <span class="trait-quiz-card-label">Cooperation</span>
+                            <div class="trait-quiz-card-result" id="trait-card-cooperativeness"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
                 <div class="eval-layout">
                     <!-- Left: Grade Card -->
                     <div class="eval-grade-card">
@@ -823,7 +901,7 @@
                             <span class="eval-grade-value" id="creator-overall-grade">C</span>
                         </div>
                         <div class="eval-grade-label">Overall Grade</div>
-                        <div class="eval-grade-hint">Adjust stats to change grade</div>
+                        <div class="eval-grade-hint">Drag sliders to adjust</div>
                     </div>
 
                     <!-- Right: Stats -->
@@ -842,7 +920,6 @@
                                 </div>
                                 <div class="eval-stat-controls">
                                     <input type="range" class="eval-slider" id="creator-stat-academic" min="0" max="100" value="50">
-                                    <button class="eval-quiz-btn" data-category="academic"></button>
                                     <div class="eval-trait" id="trait-result-academic"></div>
                                 </div>
                             </div>
@@ -858,7 +935,6 @@
                                 </div>
                                 <div class="eval-stat-controls">
                                     <input type="range" class="eval-slider" id="creator-stat-intelligence" min="0" max="100" value="50">
-                                    <button class="eval-quiz-btn" data-category="intelligence"></button>
                                     <div class="eval-trait" id="trait-result-intelligence"></div>
                                 </div>
                             </div>
@@ -874,7 +950,6 @@
                                 </div>
                                 <div class="eval-stat-controls">
                                     <input type="range" class="eval-slider" id="creator-stat-decision" min="0" max="100" value="50">
-                                    <button class="eval-quiz-btn" data-category="decision"></button>
                                     <div class="eval-trait" id="trait-result-decision"></div>
                                 </div>
                             </div>
@@ -890,7 +965,6 @@
                                 </div>
                                 <div class="eval-stat-controls">
                                     <input type="range" class="eval-slider" id="creator-stat-physical" min="0" max="100" value="50">
-                                    <button class="eval-quiz-btn" data-category="physical"></button>
                                     <div class="eval-trait" id="trait-result-physical"></div>
                                 </div>
                             </div>
@@ -906,7 +980,6 @@
                                 </div>
                                 <div class="eval-stat-controls">
                                     <input type="range" class="eval-slider" id="creator-stat-cooperativeness" min="0" max="100" value="50">
-                                    <button class="eval-quiz-btn" data-category="cooperativeness"></button>
                                     <div class="eval-trait" id="trait-result-cooperativeness"></div>
                                 </div>
                             </div>
@@ -956,20 +1029,49 @@
         <div class="trait-quiz-modal" id="trait-quiz-modal">
             <div class="trait-quiz-content">
                 <div class="trait-quiz-header">
-                    <h3 id="trait-quiz-title">Academic Ability Quiz</h3>
-                    <button class="trait-quiz-close" id="trait-quiz-close">×</button>
+                    <div class="trait-quiz-category-icon" id="trait-quiz-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        </svg>
+                    </div>
+                    <div class="trait-quiz-header-text">
+                        <span class="trait-quiz-category-label">Evaluating</span>
+                        <h3 id="trait-quiz-title">Academic Ability</h3>
+                    </div>
+                    <button class="trait-quiz-close" id="trait-quiz-close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
-                <div class="trait-quiz-progress">
-                    <span id="trait-quiz-progress-text">Question 1 of 3</span>
-                    <div class="trait-quiz-progress-bar">
-                        <div class="trait-quiz-progress-fill" id="trait-quiz-progress-fill"></div>
+                <div class="trait-quiz-body">
+                    <div class="trait-quiz-progress">
+                        <div class="trait-quiz-progress-steps">
+                            <span class="progress-current" id="trait-quiz-current">1</span>
+                            <span class="progress-divider">/</span>
+                            <span class="progress-total" id="trait-quiz-total">3</span>
+                        </div>
+                        <div class="trait-quiz-progress-bar">
+                            <div class="trait-quiz-progress-fill" id="trait-quiz-progress-fill"></div>
+                        </div>
+                    </div>
+                    <div class="trait-quiz-question-card">
+                        <div class="trait-quiz-question" id="trait-quiz-question">
+                            <!-- Question populated by JS -->
+                        </div>
+                    </div>
+                    <div class="trait-quiz-options" id="trait-quiz-options">
+                        <!-- Options populated by JS -->
                     </div>
                 </div>
-                <div class="trait-quiz-question" id="trait-quiz-question">
-                    <!-- Question populated by JS -->
-                </div>
-                <div class="trait-quiz-options" id="trait-quiz-options">
-                    <!-- Options populated by JS -->
+                <div class="trait-quiz-footer">
+                    <div class="trait-quiz-hint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        Choose the answer that best describes your character
+                    </div>
                 </div>
             </div>
         </div>
