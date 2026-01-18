@@ -959,7 +959,7 @@
                         </div>
                         <div class="trait-discovery-text">
                             <h3>Discover Your Traits</h3>
-                            <p>Optional quizzes that reveal character-defining traits</p>
+                            <p>Quizzes unlock different stat ranges — positive traits raise limits, negative traits lower them</p>
                         </div>
                         <div class="trait-discovery-progress">
                             <span class="trait-progress-count" id="traits-completed">0</span>
@@ -1021,15 +1021,19 @@
                     <!-- Right: Stats -->
                     <div class="eval-stats-card">
                         <h3 class="eval-stats-title">Evaluation</h3>
+                        <p class="eval-stats-subtitle">Click <span class="eval-quiz-hint">?</span> to take a quiz and adjust your range</p>
 
                         <div class="eval-stat-list">
                             <!-- Academic -->
                             <div class="eval-stat-row" data-category="academic">
                                 <div class="eval-stat-header">
                                     <span class="eval-stat-name">Academic Ability</span>
+                                    <button class="eval-quiz-btn" data-category="academic" title="Take quiz to discover trait">?</button>
+                                    <span class="eval-stat-range" id="stat-range-academic">25-75</span>
                                     <span class="eval-stat-value" id="creator-stat-academic-display">50</span>
                                 </div>
                                 <div class="eval-stat-bar">
+                                    <div class="eval-stat-range-indicator" id="range-indicator-academic" style="left: 25%; width: 50%"></div>
                                     <div class="eval-stat-fill stat-academic" id="creator-stat-academic-bar" style="width: 50%"></div>
                                 </div>
                                 <div class="eval-stat-controls">
@@ -1042,9 +1046,12 @@
                             <div class="eval-stat-row" data-category="intelligence">
                                 <div class="eval-stat-header">
                                     <span class="eval-stat-name">Intelligence</span>
+                                    <button class="eval-quiz-btn" data-category="intelligence" title="Take quiz to discover trait">?</button>
+                                    <span class="eval-stat-range" id="stat-range-intelligence">25-75</span>
                                     <span class="eval-stat-value" id="creator-stat-intelligence-display">50</span>
                                 </div>
                                 <div class="eval-stat-bar">
+                                    <div class="eval-stat-range-indicator" id="range-indicator-intelligence" style="left: 25%; width: 50%"></div>
                                     <div class="eval-stat-fill stat-intelligence" id="creator-stat-intelligence-bar" style="width: 50%"></div>
                                 </div>
                                 <div class="eval-stat-controls">
@@ -1057,9 +1064,12 @@
                             <div class="eval-stat-row" data-category="decision">
                                 <div class="eval-stat-header">
                                     <span class="eval-stat-name">Decision Making</span>
+                                    <button class="eval-quiz-btn" data-category="decision" title="Take quiz to discover trait">?</button>
+                                    <span class="eval-stat-range" id="stat-range-decision">25-75</span>
                                     <span class="eval-stat-value" id="creator-stat-decision-display">50</span>
                                 </div>
                                 <div class="eval-stat-bar">
+                                    <div class="eval-stat-range-indicator" id="range-indicator-decision" style="left: 25%; width: 50%"></div>
                                     <div class="eval-stat-fill stat-decision" id="creator-stat-decision-bar" style="width: 50%"></div>
                                 </div>
                                 <div class="eval-stat-controls">
@@ -1072,9 +1082,12 @@
                             <div class="eval-stat-row" data-category="physical">
                                 <div class="eval-stat-header">
                                     <span class="eval-stat-name">Physical Ability</span>
+                                    <button class="eval-quiz-btn" data-category="physical" title="Take quiz to discover trait">?</button>
+                                    <span class="eval-stat-range" id="stat-range-physical">25-75</span>
                                     <span class="eval-stat-value" id="creator-stat-physical-display">50</span>
                                 </div>
                                 <div class="eval-stat-bar">
+                                    <div class="eval-stat-range-indicator" id="range-indicator-physical" style="left: 25%; width: 50%"></div>
                                     <div class="eval-stat-fill stat-physical" id="creator-stat-physical-bar" style="width: 50%"></div>
                                 </div>
                                 <div class="eval-stat-controls">
@@ -1087,9 +1100,12 @@
                             <div class="eval-stat-row" data-category="cooperativeness">
                                 <div class="eval-stat-header">
                                     <span class="eval-stat-name">Cooperativeness</span>
+                                    <button class="eval-quiz-btn" data-category="cooperativeness" title="Take quiz to discover trait">?</button>
+                                    <span class="eval-stat-range" id="stat-range-cooperativeness">25-75</span>
                                     <span class="eval-stat-value" id="creator-stat-cooperativeness-display">50</span>
                                 </div>
                                 <div class="eval-stat-bar">
+                                    <div class="eval-stat-range-indicator" id="range-indicator-cooperativeness" style="left: 25%; width: 50%"></div>
                                     <div class="eval-stat-fill stat-cooperativeness" id="creator-stat-cooperativeness-bar" style="width: 50%"></div>
                                 </div>
                                 <div class="eval-stat-controls">

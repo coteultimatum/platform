@@ -5086,9 +5086,32 @@ body::before {
     font-weight: 600;
     color: var(--text-primary);
     letter-spacing: 0.05em;
-    margin-bottom: 1rem;
+    margin-bottom: 0.25rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border-color);
+}
+
+.eval-stats-subtitle {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    margin-top: -0.5rem;
+}
+
+.eval-quiz-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--crimson-light);
+    background: rgba(154, 46, 72, 0.15);
+    color: var(--crimson-light);
+    font-size: 0.55rem;
+    font-weight: 700;
+    vertical-align: middle;
+    margin: 0 2px;
 }
 
 .eval-stat-list {
@@ -5105,13 +5128,72 @@ body::before {
 
 .eval-stat-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .eval-stat-name {
     font-size: 0.85rem;
     color: var(--text-secondary);
+}
+
+.eval-quiz-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--crimson-light);
+    background: rgba(154, 46, 72, 0.15);
+    color: var(--crimson-light);
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eval-quiz-btn:hover {
+    background: rgba(154, 46, 72, 0.3);
+    transform: scale(1.1);
+    box-shadow: 0 0 8px var(--crimson-glow);
+}
+
+.eval-quiz-btn.has-trait {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.eval-quiz-btn.has-trait::after {
+    content: '✓';
+    font-size: 0.6rem;
+}
+
+.eval-quiz-btn.has-trait:hover {
+    background: rgba(34, 197, 94, 0.3);
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+.eval-stat-range {
+    font-size: 0.65rem;
+    font-family: 'Orbitron', monospace;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    margin-left: auto;
+    margin-right: 0.5rem;
+}
+
+.eval-stat-range.positive {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.eval-stat-range.negative {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
 }
 
 .eval-stat-value {
@@ -5127,6 +5209,27 @@ body::before {
     border-radius: 5px;
     overflow: hidden;
     position: relative;
+}
+
+.eval-stat-range-indicator {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 1px dashed rgba(255, 255, 255, 0.2);
+    border-right: 1px dashed rgba(255, 255, 255, 0.2);
+    transition: left 0.3s ease, width 0.3s ease;
+    z-index: 0;
+}
+
+.eval-stat-range-indicator.positive {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.eval-stat-range-indicator.negative {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
 }
 
 .eval-stat-fill {
