@@ -2574,24 +2574,22 @@ const traitDefinitions = {
 };
 
 // Get stat limits based on trait
-// Hierarchy: negative (0-50) < no trait (25-75) < positive (50-100)
+// No trait = narrow middle (40-60), traits EXPAND the range
 function getStatLimitsFromTrait(category) {
     const trait = creatorState.character.traits[category];
 
-    // All states have min AND max limits (same 50-point range)
-    // Hierarchy: negative max (50) = positive min (50) - they meet at midpoint
     if (!trait) {
-        // No trait = unproven, centered middle range
-        return { min: 25, max: 75 };
+        // No trait = narrow safe range in the middle
+        return { min: 40, max: 60 };
     }
 
     const isPositive = traitDefinitions[category].positive.includes(trait);
     if (isPositive) {
-        // Positive trait = at least average, can excel
-        return { min: 50, max: 100 };
+        // Positive trait = expands upward (can reach 100)
+        return { min: 40, max: 100 };
     } else {
-        // Negative trait = poor to average at best
-        return { min: 0, max: 50 };
+        // Negative trait = expands downward (can go to 0)
+        return { min: 0, max: 60 };
     }
 }
 
@@ -2600,8 +2598,10 @@ function applyTraitLimits(category) {
     const slider = document.getElementById(`creator-stat-${category}`);
     const display = document.getElementById(`creator-stat-${category}-display`);
     const bar = document.getElementById(`creator-stat-${category}-bar`);
-    const zone = document.getElementById(`stat-zone-${category}`);
-    const card = document.querySelector(`.eval-stat-card[data-category="${category}"]`);
+    const lockedLeft = document.getElementById(`locked-left-${category}`);
+    const lockedRight = document.getElementById(`locked-right-${category}`);
+    const row = document.querySelector(`.eval-row[data-category="${category}"]`);
+    const discoverBtn = document.querySelector(`.eval-row-discover[data-category="${category}"]`);
 
     if (!slider) return;
 
@@ -2623,24 +2623,31 @@ function applyTraitLimits(category) {
     if (display) display.textContent = currentValue;
     if (bar) bar.style.width = `${currentValue}%`;
 
-    // Update zone indicator
-    if (zone) {
-        zone.style.left = `${limits.min}%`;
-        zone.style.width = `${limits.max - limits.min}%`;
-        zone.classList.remove('positive', 'negative');
+    // Update locked area indicators
+    if (lockedLeft) {
+        // Left locked area: 0% to min%
+        lockedLeft.style.width = `${limits.min}%`;
+    }
+    if (lockedRight) {
+        // Right locked area: max% to 100%
+        lockedRight.style.width = `${100 - limits.max}%`;
+    }
+
+    // Update row state
+    if (row) {
         if (trait) {
+            row.classList.add('has-trait');
             const isPositive = traitDefinitions[category]?.positive.includes(trait);
-            zone.classList.add(isPositive ? 'positive' : 'negative');
+            row.classList.remove('trait-positive', 'trait-negative');
+            row.classList.add(isPositive ? 'trait-positive' : 'trait-negative');
+        } else {
+            row.classList.remove('has-trait', 'trait-positive', 'trait-negative');
         }
     }
 
-    // Update card state
-    if (card) {
-        if (trait) {
-            card.classList.add('has-trait');
-        } else {
-            card.classList.remove('has-trait');
-        }
+    // Hide discover button after trait is discovered
+    if (discoverBtn) {
+        discoverBtn.style.display = trait ? 'none' : '';
     }
 
     updateCreatorOverallGrade();
@@ -2656,22 +2663,19 @@ function clearTrait(category) {
         resultEl.innerHTML = '';
     }
 
-    // Update quiz card - remove completed state
+    // Update quiz card - remove completed state (old layout compatibility)
     const card = document.querySelector(`.trait-quiz-card[data-category="${category}"]`);
     if (card) {
         card.classList.remove('completed');
     }
 
-    // Update button
-    const btn = document.querySelector(`.trait-quiz-btn[data-category="${category}"], .eval-quiz-btn[data-category="${category}"]`);
-    if (btn) {
-        btn.classList.remove('has-trait');
+    // Show discover button again
+    const discoverBtn = document.querySelector(`.eval-row-discover[data-category="${category}"]`);
+    if (discoverBtn) {
+        discoverBtn.style.display = '';
     }
 
-    // Update counter
-    updateTraitCounter();
-
-    // Apply "no trait" limits
+    // Apply "no trait" limits (this also resets locked areas and row state)
     applyTraitLimits(category);
 
     playSound('click');
@@ -2936,7 +2940,7 @@ function initCreatorApp() {
     });
 
     // Trait quiz buttons (all selectors for compatibility)
-    document.querySelectorAll('.trait-quiz-btn, .eval-quiz-btn, .eval-discover-btn, .trait-quiz-card').forEach(btn => {
+    document.querySelectorAll('.trait-quiz-btn, .eval-quiz-btn, .eval-discover-btn, .eval-row-discover, .trait-quiz-card').forEach(btn => {
         btn.addEventListener('click', () => {
             openTraitQuiz(btn.dataset.category);
             playSound('open');
@@ -3278,18 +3282,16 @@ function finishQuiz() {
 
     creatorState.character.traits[category] = resultTrait;
 
-    // Get limits for display
+    // Determine trait polarity
     const isPositive = traits.positive.includes(resultTrait);
-    const limits = isPositive ? { min: 50, max: 100 } : { min: 0, max: 50 };
 
-    // Update UI with badge, range, and clear button
+    // Update UI with compact badge and clear button
     const resultEl = document.getElementById(`trait-result-${category}`);
     if (resultEl) {
         resultEl.innerHTML = `
             <span class="trait-badge ${isPositive ? 'positive' : 'negative'}">
                 ${resultTrait}
             </span>
-            <span class="trait-range ${isPositive ? 'positive' : 'negative'}">Range: ${limits.min}-${limits.max}</span>
             <button class="trait-clear-btn" onclick="clearTrait('${category}')" title="Remove trait">×</button>`;
     }
 
@@ -3803,13 +3805,25 @@ function resetCreator() {
         const slider = document.getElementById(`creator-stat-${stat}`);
         const display = document.getElementById(`creator-stat-${stat}-display`);
         const bar = document.getElementById(`creator-stat-${stat}-bar`);
+        const lockedLeft = document.getElementById(`locked-left-${stat}`);
+        const lockedRight = document.getElementById(`locked-right-${stat}`);
+        const row = document.querySelector(`.eval-row[data-category="${stat}"]`);
+        const discoverBtn = document.querySelector(`.eval-row-discover[data-category="${stat}"]`);
+
         if (slider) {
-            slider.min = 0;
-            slider.max = 80; // Default cap when no trait taken
+            slider.min = 40;
+            slider.max = 60; // Default "no trait" range
             slider.value = 50;
         }
         if (display) display.textContent = '50';
         if (bar) bar.style.width = '50%';
+        // Reset locked areas to default (40% on each side)
+        if (lockedLeft) lockedLeft.style.width = '40%';
+        if (lockedRight) lockedRight.style.width = '40%';
+        // Reset row state
+        if (row) row.classList.remove('has-trait', 'trait-positive', 'trait-negative');
+        // Show discover button
+        if (discoverBtn) discoverBtn.style.display = '';
     });
     updateCreatorOverallGrade();
 
@@ -3819,9 +3833,7 @@ function resetCreator() {
         if (resultEl) {
             resultEl.innerHTML = '';
         }
-        const btn = document.querySelector(`.trait-quiz-btn[data-category="${cat}"], .eval-quiz-btn[data-category="${cat}"]`);
-        if (btn) btn.classList.remove('has-trait');
-        // Reset quiz cards
+        // Reset quiz cards (old layout compatibility)
         const card = document.querySelector(`.trait-quiz-card[data-category="${cat}"]`);
         if (card) {
             card.classList.remove('completed');
