@@ -2185,15 +2185,15 @@ const traitDefinitions = {
 };
 
 // Get stat limits based on trait
-// Hierarchy: negative (0-50) < no trait (20-80) < positive (50-100)
+// Hierarchy: negative (0-50) < no trait (25-75) < positive (50-100)
 function getStatLimitsFromTrait(category) {
     const trait = creatorState.character.traits[category];
 
-    // All states have min AND max limits
+    // All states have min AND max limits (same 50-point range)
     // Hierarchy: negative max (50) = positive min (50) - they meet at midpoint
     if (!trait) {
-        // No trait = unproven, middle range
-        return { min: 20, max: 80 };
+        // No trait = unproven, centered middle range
+        return { min: 25, max: 75 };
     }
 
     const isPositive = traitDefinitions[category].positive.includes(trait);

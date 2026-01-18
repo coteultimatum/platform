@@ -2519,24 +2519,6 @@ body::before {
     overflow: hidden;
 }
 
-.standby-state::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(77, 201, 230, 0.3), transparent);
-    animation: scanLine 4s linear infinite;
-}
-
-@keyframes scanLine {
-    0% { left: -100%; top: 0; }
-    50% { left: 100%; top: 0; }
-    50.01% { left: -100%; top: 100%; }
-    100% { left: 100%; top: 100%; }
-}
-
 .standby-icon {
     width: 48px;
     height: 48px;
@@ -4827,6 +4809,12 @@ body::before {
     text-shadow: 0 0 10px var(--cyan-glow);
 }
 
+.trait-progress-divider {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin: 0 0.15rem;
+}
+
 .trait-progress-total {
     font-size: 1rem;
     color: var(--text-muted);
@@ -4856,7 +4844,7 @@ body::before {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 0.5rem;
+    padding: 1rem 0.5rem 1.25rem;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
@@ -4864,7 +4852,7 @@ body::before {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 70px;
+    min-height: 80px;
 }
 
 .trait-quiz-card::after {
