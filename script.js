@@ -2184,15 +2184,20 @@ const traitDefinitions = {
     }
 };
 
-// Get stat limits based on trait (positive traits = min 40, negative traits = max 60)
+// Get stat limits based on trait
+// Hierarchy: negative trait (max 60) < no trait (max 80) < positive trait (min 40)
 function getStatLimitsFromTrait(category) {
     const trait = creatorState.character.traits[category];
-    if (!trait) return { min: 0, max: 100 };
+
+    // No trait taken = capped at 80 (can't claim max without proving it)
+    if (!trait) return { min: 0, max: 80 };
 
     const isPositive = traitDefinitions[category].positive.includes(trait);
     if (isPositive) {
+        // Positive trait = at least 40, can go to 100
         return { min: 40, max: 100 };
     } else {
+        // Negative trait = capped at 60
         return { min: 0, max: 60 };
     }
 }
@@ -2449,6 +2454,11 @@ function initCreatorApp() {
         const bar = document.getElementById(`creator-stat-${stat}-bar`);
 
         if (slider) {
+            // Apply initial limits based on trait (or lack thereof)
+            const limits = getStatLimitsFromTrait(stat);
+            slider.min = limits.min;
+            slider.max = limits.max;
+
             // Update function for this stat
             const updateStat = (value) => {
                 creatorState.character.stats[stat] = value;
@@ -2457,8 +2467,12 @@ function initCreatorApp() {
                 updateCreatorOverallGrade();
             };
 
-            // Initialize
-            updateStat(parseInt(slider.value));
+            // Initialize with clamped value
+            let initialValue = parseInt(slider.value);
+            if (initialValue > limits.max) initialValue = limits.max;
+            if (initialValue < limits.min) initialValue = limits.min;
+            slider.value = initialValue;
+            updateStat(initialValue);
 
             slider.addEventListener('input', () => {
                 updateStat(parseInt(slider.value));
@@ -3257,7 +3271,7 @@ function resetCreator() {
         const bar = document.getElementById(`creator-stat-${stat}-bar`);
         if (slider) {
             slider.min = 0;
-            slider.max = 100;
+            slider.max = 80; // Default cap when no trait taken
             slider.value = 50;
         }
         if (display) display.textContent = '50';

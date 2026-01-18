@@ -4855,7 +4855,7 @@ body::before {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
     padding: 0.75rem 0.5rem;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(255, 255, 255, 0.1);
@@ -4863,6 +4863,8 @@ body::before {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    overflow: hidden;
+    min-height: 70px;
 }
 
 .trait-quiz-card::after {
@@ -4871,20 +4873,25 @@ body::before {
     font-weight: 700;
     letter-spacing: 0.1em;
     color: var(--crimson-light);
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
     opacity: 0;
-    transition: opacity 0.2s ease;
-    margin-top: 0.25rem;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
 }
 
 .trait-quiz-card:hover {
     border-color: var(--crimson);
     background: rgba(154, 46, 72, 0.1);
-    transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(154, 46, 72, 0.2);
 }
 
 .trait-quiz-card:hover::after {
     opacity: 1;
+    transform: translateY(0);
 }
 
 .trait-quiz-card.completed {
@@ -4893,9 +4900,8 @@ body::before {
 }
 
 .trait-quiz-card.completed::after {
-    content: 'RETAKE';
+    content: 'RETAKE QUIZ';
     color: #22c55e;
-    opacity: 0;
 }
 
 .trait-quiz-card.completed:hover {
@@ -4914,11 +4920,11 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease;
+    transition: transform 0.25s ease;
 }
 
 .trait-quiz-card:hover .trait-quiz-card-icon {
-    transform: scale(1.1);
+    transform: translateY(-6px);
 }
 
 .trait-quiz-card-icon svg {
