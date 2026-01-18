@@ -1929,6 +1929,11 @@ function handleAdminSave() {
         statusEl.textContent = 'No changes to save';
         statusEl.className = 'admin-status error';
         playSound('error');
+        // Auto-dismiss after 3 seconds
+        setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'admin-status';
+        }, 3000);
         return;
     }
 
@@ -2179,6 +2184,47 @@ const traitDefinitions = {
     }
 };
 
+// Get stat limits based on trait (positive traits = min 40, negative traits = max 60)
+function getStatLimitsFromTrait(category) {
+    const trait = creatorState.character.traits[category];
+    if (!trait) return { min: 0, max: 100 };
+
+    const isPositive = traitDefinitions[category].positive.includes(trait);
+    if (isPositive) {
+        return { min: 40, max: 100 };
+    } else {
+        return { min: 0, max: 60 };
+    }
+}
+
+// Apply trait limits to a stat slider
+function applyTraitLimits(category) {
+    const slider = document.getElementById(`creator-stat-${category}`);
+    const display = document.getElementById(`creator-stat-${category}-display`);
+    const bar = document.getElementById(`creator-stat-${category}-bar`);
+
+    if (!slider) return;
+
+    const limits = getStatLimitsFromTrait(category);
+    slider.min = limits.min;
+    slider.max = limits.max;
+
+    // Clamp current value to new limits
+    let currentValue = parseInt(slider.value);
+    if (currentValue < limits.min) {
+        currentValue = limits.min;
+    } else if (currentValue > limits.max) {
+        currentValue = limits.max;
+    }
+
+    slider.value = currentValue;
+    creatorState.character.stats[category] = currentValue;
+    if (display) display.textContent = currentValue;
+    if (bar) bar.style.width = `${currentValue}%`;
+
+    updateCreatorOverallGrade();
+}
+
 // Quiz questions for each category
 const quizQuestions = {
     academic: [
@@ -2394,6 +2440,9 @@ function initCreatorApp() {
 
     // Stats sliders (new eval layout)
     const statKeys = ['academic', 'intelligence', 'decision', 'physical', 'cooperativeness'];
+    let lastSliderSoundTime = 0;
+    const sliderSoundThrottle = 80; // ms between sounds
+
     statKeys.forEach(stat => {
         const slider = document.getElementById(`creator-stat-${stat}`);
         const display = document.getElementById(`creator-stat-${stat}-display`);
@@ -2413,6 +2462,12 @@ function initCreatorApp() {
 
             slider.addEventListener('input', () => {
                 updateStat(parseInt(slider.value));
+                // Throttled tick sound while sliding
+                const now = Date.now();
+                if (now - lastSliderSoundTime > sliderSoundThrottle) {
+                    playSound('type');
+                    lastSliderSoundTime = now;
+                }
             });
 
             slider.addEventListener('mousedown', () => playSound('select'));
@@ -2783,6 +2838,9 @@ function finishQuiz() {
 
     // Update completion counter
     updateTraitCounter();
+
+    // Apply trait limits to the stat slider
+    applyTraitLimits(category);
 
     closeTraitQuiz();
     playSound('success');
@@ -3191,13 +3249,17 @@ function resetCreator() {
         btn.classList.remove('active');
     });
 
-    // Reset stat sliders and displays
+    // Reset stat sliders and displays (including limits)
     const statKeys = ['academic', 'intelligence', 'decision', 'physical', 'cooperativeness'];
     statKeys.forEach(stat => {
         const slider = document.getElementById(`creator-stat-${stat}`);
         const display = document.getElementById(`creator-stat-${stat}-display`);
         const bar = document.getElementById(`creator-stat-${stat}-bar`);
-        if (slider) slider.value = 50;
+        if (slider) {
+            slider.min = 0;
+            slider.max = 100;
+            slider.value = 50;
+        }
         if (display) display.textContent = '50';
         if (bar) bar.style.width = '50%';
     });
