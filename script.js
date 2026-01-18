@@ -3285,12 +3285,15 @@ function finishQuiz() {
     // Determine trait polarity
     const isPositive = traits.positive.includes(resultTrait);
 
-    // Update UI with compact badge and clear button
+    // Update UI with compact badge (with icon) and clear button
     const resultEl = document.getElementById(`trait-result-${category}`);
     if (resultEl) {
+        const icon = isPositive
+            ? '<span class="trait-icon positive">▲</span>'
+            : '<span class="trait-icon negative">▼</span>';
         resultEl.innerHTML = `
             <span class="trait-badge ${isPositive ? 'positive' : 'negative'}">
-                ${resultTrait}
+                ${icon}${resultTrait}
             </span>
             <button class="trait-clear-btn" onclick="clearTrait('${category}')" title="Remove trait">×</button>`;
     }

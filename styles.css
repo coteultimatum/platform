@@ -5016,59 +5016,33 @@ body::before {
 
 /* Evaluation Tab - Card Layout */
 
-/* Header with Grade */
-.eval-header {
-    margin-bottom: 1.5rem;
-}
-
-.eval-grade-display {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--cyan);
-    border-radius: 12px;
-    box-shadow: 0 0 20px var(--cyan-glow);
-}
-
-.eval-grade-ring {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(77, 201, 230, 0.15), rgba(154, 46, 72, 0.15));
-    border: 2px solid var(--cyan);
+/* Compact grade in header */
+.eval-grade-compact {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 20px var(--cyan-glow), inset 0 0 15px rgba(77, 201, 230, 0.1);
-    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(77, 201, 230, 0.15), rgba(154, 46, 72, 0.15));
+    border: 2px solid var(--cyan);
+    box-shadow: 0 0 12px var(--cyan-glow);
 }
 
-.eval-grade-letter {
-    font-family: 'Orbitron', monospace;
-    font-size: 1.75rem;
-    font-weight: 900;
-    color: var(--cyan);
-    text-shadow: 0 0 15px var(--cyan-glow);
-}
-
-.eval-grade-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.eval-grade-title {
+.eval-grade-compact .eval-grade-letter {
     font-family: 'Orbitron', monospace;
     font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-weight: 900;
+    color: var(--cyan);
+    text-shadow: 0 0 10px var(--cyan-glow);
 }
 
-.eval-grade-subtitle {
-    font-size: 0.8rem;
+/* Card description */
+.creator-card-desc {
+    font-size: 0.85rem;
     color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
 }
 
 /* Stat Cards Grid */
@@ -5147,6 +5121,19 @@ body::before {
 .eval-card-trait .trait-badge.negative {
     background: rgba(239, 68, 68, 0.15);
     border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.eval-card-trait .trait-icon {
+    font-size: 0.6rem;
+    margin-right: 0.25rem;
+}
+
+.eval-card-trait .trait-icon.positive {
+    color: #22c55e;
+}
+
+.eval-card-trait .trait-icon.negative {
     color: #ef4444;
 }
 
@@ -5335,8 +5322,16 @@ body::before {
     transition: all 0.2s ease;
 }
 
-.eval-card-discover svg {
-    opacity: 0.8;
+.discover-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(154, 46, 72, 0.3);
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 
 .eval-card-discover:hover {
@@ -5345,26 +5340,22 @@ body::before {
     box-shadow: 0 0 15px var(--crimson-glow);
 }
 
+.eval-card-discover:hover .discover-icon {
+    background: rgba(154, 46, 72, 0.5);
+}
+
 .eval-card.has-trait .eval-card-discover {
     display: none;
 }
 
 /* Responsive */
 @media (max-width: 500px) {
-    .eval-grade-display {
-        padding: 0.75rem 1rem;
+    .eval-grade-compact {
+        width: 32px;
+        height: 32px;
     }
 
-    .eval-grade-ring {
-        width: 50px;
-        height: 50px;
-    }
-
-    .eval-grade-letter {
-        font-size: 1.5rem;
-    }
-
-    .eval-grade-title {
+    .eval-grade-compact .eval-grade-letter {
         font-size: 0.9rem;
     }
 
