@@ -2621,7 +2621,12 @@ function applyTraitLimits(category) {
     slider.value = currentValue;
     creatorState.character.stats[category] = currentValue;
     if (display) display.textContent = currentValue;
-    if (bar) bar.style.width = `${currentValue}%`;
+
+    // Position fill bar to start from min limit (so locked areas are visible)
+    if (bar) {
+        bar.style.left = `${limits.min}%`;
+        bar.style.width = `${currentValue - limits.min}%`;
+    }
 
     // Update locked area indicators
     if (lockedLeft) {
@@ -2914,7 +2919,12 @@ function initCreatorApp() {
             const updateStat = (value) => {
                 creatorState.character.stats[stat] = value;
                 if (display) display.textContent = value;
-                if (bar) bar.style.width = `${value}%`;
+                // Position bar from min limit to value
+                const currentLimits = getStatLimitsFromTrait(stat);
+                if (bar) {
+                    bar.style.left = `${currentLimits.min}%`;
+                    bar.style.width = `${value - currentLimits.min}%`;
+                }
                 updateCreatorOverallGrade();
             };
 
@@ -3833,7 +3843,11 @@ function resetCreator() {
             slider.value = 50;
         }
         if (display) display.textContent = '50';
-        if (bar) bar.style.width = '50%';
+        // Position bar from min (40) to value (50) = 10% width
+        if (bar) {
+            bar.style.left = '40%';
+            bar.style.width = '10%';
+        }
         // Reset locked areas to default (40% on each side)
         if (lockedLeft) lockedLeft.style.width = '40%';
         if (lockedRight) lockedRight.style.width = '40%';

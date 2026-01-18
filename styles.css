@@ -5219,8 +5219,10 @@ body::before {
 .eval-bar-fill {
     height: 100%;
     border-radius: 8px;
-    transition: width 0.3s ease;
-    position: relative;
+    transition: width 0.3s ease, left 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 40%;
     z-index: 1;
 }
 
