@@ -3256,6 +3256,21 @@ function selectQuizOption(btn) {
         creatorState.quizState.negativeType += type;
     }
 
+    // Update icon color based on current score trend
+    const iconEl = document.getElementById('trait-quiz-icon');
+    if (iconEl) {
+        const { scores } = creatorState.quizState;
+        // Remove all color classes first
+        iconEl.classList.remove('result-positive', 'result-negative', 'stat-academic-bg', 'stat-intelligence-bg', 'stat-decision-bg', 'stat-physical-bg', 'stat-cooperativeness-bg');
+
+        if (scores.positive > scores.negative) {
+            iconEl.classList.add('result-positive');
+        } else if (scores.negative > scores.positive) {
+            iconEl.classList.add('result-negative');
+        }
+        // If tied, no color class (neutral)
+    }
+
     creatorState.quizState.questionIndex++;
 
     const { category, questionIndex } = creatorState.quizState;
@@ -3295,13 +3310,6 @@ function finishQuiz() {
     // Determine trait polarity
     const isPositive = traits.positive.includes(resultTrait);
 
-    // Color the quiz icon based on result
-    const iconEl = document.getElementById('trait-quiz-icon');
-    if (iconEl) {
-        iconEl.classList.remove('stat-academic-bg', 'stat-intelligence-bg', 'stat-decision-bg', 'stat-physical-bg', 'stat-cooperativeness-bg');
-        iconEl.classList.add(isPositive ? 'result-positive' : 'result-negative');
-    }
-
     // Update UI with compact badge (with icon) and clear button
     const resultEl = document.getElementById(`trait-result-${category}`);
     if (resultEl) {
@@ -3325,6 +3333,7 @@ function finishQuiz() {
     setTimeout(() => {
         closeTraitQuiz();
         // Reset icon class for next quiz
+        const iconEl = document.getElementById('trait-quiz-icon');
         if (iconEl) {
             iconEl.classList.remove('result-positive', 'result-negative');
         }

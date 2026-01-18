@@ -4580,7 +4580,8 @@ body::before {
 .creator-content {
     padding: 1rem 1.5rem;
     padding-bottom: 4rem; /* Space for keyboard hints */
-    overflow-y: scroll; /* Always show scrollbar to prevent layout shift */
+    overflow-y: auto;
+    scrollbar-gutter: stable; /* Prevent layout shift */
     max-height: calc(100vh - 120px);
     scrollbar-width: thin;
     scrollbar-color: var(--cyan-dim) transparent;
