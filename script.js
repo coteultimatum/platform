@@ -1938,6 +1938,10 @@ function hideSaveConfirmModal() {
 async function confirmAdminSave() {
     if (!pendingChanges || !pendingNewPoints) return;
 
+    // Save values before hiding modal (which clears them)
+    const changes = pendingChanges;
+    const newPoints = pendingNewPoints;
+
     const saveBtn = document.getElementById('admin-save-btn');
     const statusEl = document.getElementById('admin-status');
 
@@ -1955,7 +1959,7 @@ async function confirmAdminSave() {
     const minDelay = new Promise(resolve => setTimeout(resolve, 600));
 
     // Convert changes to string format for logging
-    const changeStrings = pendingChanges.map(c => c.text);
+    const changeStrings = changes.map(c => c.text);
 
     // Check if database is initialized
     if (!COTEDB.isInitialized()) {
@@ -1979,12 +1983,12 @@ async function confirmAdminSave() {
     try {
         // Save to Firebase (runs in parallel with delay, with 10s timeout)
         const [success] = await Promise.all([
-            withTimeout(COTEDB.setClassPointsWithLog(pendingNewPoints, adminState.displayName || adminState.currentUser, changeStrings), 10000),
+            withTimeout(COTEDB.setClassPointsWithLog(newPoints, adminState.displayName || adminState.currentUser, changeStrings), 10000),
             minDelay
         ]);
 
         if (success) {
-            statusEl.innerHTML = `<span class="status-checkmark">✓</span> Saved ${pendingChanges.length} change(s)`;
+            statusEl.innerHTML = `<span class="status-checkmark">✓</span> Saved ${changes.length} change(s)`;
             statusEl.className = 'admin-status success';
             playSound('success');
 
