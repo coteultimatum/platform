@@ -1769,6 +1769,22 @@ body::before {
     color: var(--text-muted);
 }
 
+.student-preview-stats {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 12px;
+}
+
+.student-preview-stats .stat-mini-bar {
+    width: 3px;
+    height: 12px;
+}
+
+.student-preview:hover .stat-mini-bar::after {
+    filter: brightness(1.2);
+}
+
 .view-all-link {
     display: flex;
     align-items: center;
@@ -3493,6 +3509,7 @@ body::before {
 /* Panel View */
 .admin-panel-view {
     padding: 1.5rem;
+    padding-bottom: 5rem; /* Space for keyboard hints */
 }
 
 .admin-user-bar {
@@ -4202,6 +4219,19 @@ body::before {
     overflow-y: auto;
 }
 
+.admin-student-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.admin-student-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-student-list::-webkit-scrollbar-thumb {
+    background: var(--cyan-dim);
+    border-radius: 2px;
+}
+
 .admin-student-item {
     display: flex;
     align-items: center;
@@ -4402,6 +4432,27 @@ body::before {
 .admin-modal-delete:hover {
     background: #e74c3c;
     color: white;
+}
+
+.modal-keyboard-hint {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--bg-tertiary);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.modal-keyboard-hint .key {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--text-muted);
+    border-radius: 4px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    margin-right: 0.3rem;
 }
 
 @media (max-width: 480px) {

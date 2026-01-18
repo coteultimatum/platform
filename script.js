@@ -711,6 +711,14 @@ function initKeyboardNav() {
                 return;
             }
 
+            // Close admin student modal if open
+            const studentModal = document.getElementById('admin-student-modal');
+            if (studentModal && studentModal.style.display !== 'none') {
+                closeStudentModal();
+                playSound('back');
+                return;
+            }
+
             const searchInput = document.querySelector('.search-input');
             if (searchInput && document.activeElement === searchInput) {
                 searchInput.blur();
@@ -1025,8 +1033,8 @@ function createClassCard(year, className, students) {
                 } else {
                     playSound('click');
                     state.currentClass = { year: student.year, className: student.class };
+                    // Only push current view to history - back from profile goes directly to dashboard
                     state.navigationHistory.push({ screen: 'oaa-app', oaaView: 'oaa-dashboard', classData: null });
-                    state.navigationHistory.push({ screen: 'oaa-app', oaaView: 'oaa-class', classData: { year: student.year, className: student.class } });
                     showStudentProfile(student, false);
                 }
             }
@@ -1047,6 +1055,14 @@ function createStudentPreviewHTML(student) {
     const isFavorite = state.favorites.includes(student.id);
     const isComparing = state.compareList.includes(student.id);
 
+    // Create mini stat bars HTML
+    const statKeys = ['academic', 'intelligence', 'decision', 'physical', 'cooperativeness'];
+    const miniStatsHTML = statKeys.map(stat => {
+        const value = student.stats[stat] || 50;
+        const height = Math.round((value / 100) * 12);
+        return `<div class="stat-mini-bar stat-${stat}" style="--bar-height: ${height}px;"></div>`;
+    }).join('');
+
     return `
         <div class="student-preview ${isComparing ? 'comparing' : ''}" data-student-id="${student.id}">
             ${student.image
@@ -1056,6 +1072,7 @@ function createStudentPreviewHTML(student) {
                 <div class="student-preview-name">${student.name} ${isFavorite ? '<span class="favorite-star">★</span>' : ''}</div>
                 <div class="student-preview-id">${student.id}</div>
             </div>
+            <div class="student-preview-stats">${miniStatsHTML}</div>
             ${state.compareMode ? `<div class="compare-checkbox ${isComparing ? 'checked' : ''}"></div>` : ''}
         </div>
     `;
