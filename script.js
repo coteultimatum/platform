@@ -2309,11 +2309,12 @@ function initCreatorApp() {
         nameInput.addEventListener('focus', () => playSound('select'));
     }
 
-    // Image URL input
+    // Image URL input with live preview
     const imageInput = document.getElementById('creator-image');
     if (imageInput) {
         imageInput.addEventListener('input', (e) => {
             creatorState.character.image = e.target.value;
+            updateAvatarPreview(e.target.value);
         });
         imageInput.addEventListener('focus', () => playSound('select'));
     }
@@ -2408,6 +2409,20 @@ function initCreatorApp() {
     }
 }
 
+function updateAvatarPreview(url) {
+    const preview = document.getElementById('creator-avatar-preview');
+    if (!preview) return;
+
+    if (url && url.trim()) {
+        preview.innerHTML = `<img src="${url}" alt="Avatar" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 64 64\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><circle cx=\\'32\\' cy=\\'24\\' r=\\'12\\'/><path d=\\'M12 56c0-11 9-20 20-20s20 9 20 20\\'/></svg>'">`;
+    } else {
+        preview.innerHTML = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="32" cy="24" r="12"/>
+            <path d="M12 56c0-11 9-20 20-20s20 9 20 20"/>
+        </svg>`;
+    }
+}
+
 function goToCreatorStep(stepId) {
     // Update step visibility
     document.querySelectorAll('.creator-step').forEach(step => step.classList.remove('active'));
@@ -2418,7 +2433,7 @@ function goToCreatorStep(stepId) {
     }
 
     // Update progress indicator
-    const steps = ['info', 'stats', 'traits', 'bio', 'export'];
+    const steps = ['info', 'bio', 'abilities', 'export'];
     const currentIndex = steps.indexOf(stepId);
     document.querySelectorAll('.progress-step').forEach((step, i) => {
         step.classList.toggle('active', i <= currentIndex);
@@ -2578,70 +2593,92 @@ function updateCreatorPreview() {
          char.stats.physical + char.stats.cooperativeness) / 5
     );
 
-    const traitsHTML = Object.entries(char.traits).map(([cat, trait]) => {
-        const isPositive = traitDefinitions[cat].positive.includes(trait);
-        return `<span class="preview-trait ${isPositive ? 'positive' : 'negative'}">${trait}</span>`;
-    }).join('') || '<span class="preview-no-traits">No traits selected</span>';
+    // Generate stat rows with traits inline
+    const statNames = {
+        academic: 'Academic Ability',
+        intelligence: 'Intelligence',
+        decision: 'Decision Making',
+        physical: 'Physical Ability',
+        cooperativeness: 'Cooperativeness'
+    };
 
-    preview.innerHTML = `
-        <div class="preview-header">
-            <div class="preview-avatar ${char.class ? `class-${char.class.toLowerCase()}-glow` : ''}">
-                ${char.image
-                    ? `<img src="${char.image}" alt="${char.name || 'Character'}">`
-                    : `<div class="preview-avatar-placeholder">${getInitials(char.name || '??')}</div>`}
-            </div>
-            <div class="preview-info">
-                <h3 class="preview-name">${char.name || 'Unnamed Character'}</h3>
-                <p class="preview-class">${char.year}${yearSuffix} Year - Class ${char.class || '?'}</p>
-                <div class="preview-overall">
-                    <span class="preview-overall-label">OAA Grade</span>
-                    <span class="preview-overall-value">${overallGrade}</span>
+    const statsHTML = Object.entries(statNames).map(([key, label]) => {
+        const value = char.stats[key];
+        const trait = char.traits[key];
+        const traitHTML = trait ? (() => {
+            const isPositive = traitDefinitions[key].positive.includes(trait);
+            return `<span class="preview-stat-trait ${isPositive ? 'positive' : 'negative'}">${trait}</span>`;
+        })() : '';
+
+        return `
+            <div class="preview-stat-row">
+                <div class="preview-stat-header">
+                    <span class="preview-stat-name">${label}</span>
+                    ${traitHTML}
+                </div>
+                <div class="preview-stat-bar-container">
+                    <div class="preview-stat-bar">
+                        <div class="preview-stat-fill stat-${key}" style="width: ${value}%"></div>
+                    </div>
+                    <span class="preview-stat-value">${value}</span>
                 </div>
             </div>
-        </div>
-        <div class="preview-stats">
-            <div class="preview-stat-row">
-                <span class="preview-stat-name">Academic</span>
-                <div class="preview-stat-bar"><div class="preview-stat-fill stat-academic" style="width: ${char.stats.academic}%"></div></div>
-                <span class="preview-stat-value">${char.stats.academic}</span>
+        `;
+    }).join('');
+
+    // Class-specific styling
+    const classLower = char.class ? char.class.toLowerCase() : '';
+    const classGlow = classLower ? `class-${classLower}-glow` : '';
+
+    preview.innerHTML = `
+        <div class="preview-card-header">
+            <div class="preview-header-info">
+                <h2 class="preview-name">${char.name || 'Unnamed Character'}</h2>
+                <p class="preview-class-info">${char.year}${yearSuffix} Year - Class ${char.class || '?'}</p>
             </div>
-            <div class="preview-stat-row">
-                <span class="preview-stat-name">Intelligence</span>
-                <div class="preview-stat-bar"><div class="preview-stat-fill stat-intelligence" style="width: ${char.stats.intelligence}%"></div></div>
-                <span class="preview-stat-value">${char.stats.intelligence}</span>
-            </div>
-            <div class="preview-stat-row">
-                <span class="preview-stat-name">Decision</span>
-                <div class="preview-stat-bar"><div class="preview-stat-fill stat-decision" style="width: ${char.stats.decision}%"></div></div>
-                <span class="preview-stat-value">${char.stats.decision}</span>
-            </div>
-            <div class="preview-stat-row">
-                <span class="preview-stat-name">Physical</span>
-                <div class="preview-stat-bar"><div class="preview-stat-fill stat-physical" style="width: ${char.stats.physical}%"></div></div>
-                <span class="preview-stat-value">${char.stats.physical}</span>
-            </div>
-            <div class="preview-stat-row">
-                <span class="preview-stat-name">Cooperativeness</span>
-                <div class="preview-stat-bar"><div class="preview-stat-fill stat-cooperativeness" style="width: ${char.stats.cooperativeness}%"></div></div>
-                <span class="preview-stat-value">${char.stats.cooperativeness}</span>
+            <div class="preview-id-box">
+                <span class="preview-id-label">OC</span>
+                <span class="preview-id-value">NEW</span>
             </div>
         </div>
-        <div class="preview-traits">
-            <h4>Traits</h4>
-            <div class="preview-traits-list">${traitsHTML}</div>
+        <div class="preview-card-body">
+            <div class="preview-image-container ${classGlow}">
+                ${char.image
+                    ? `<img class="preview-image" src="${char.image}" alt="${char.name || 'Character'}">`
+                    : `<div class="preview-image-placeholder">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="32" cy="24" r="12"/>
+                            <path d="M12 56c0-11 9-20 20-20s20 9 20 20"/>
+                        </svg>
+                    </div>`}
+                <div class="preview-grade-box">
+                    <span class="preview-grade-label">OVERALL GRADE</span>
+                    <span class="preview-grade-value">${overallGrade}</span>
+                </div>
+            </div>
+            <div class="preview-stats-section">
+                <h3 class="preview-stats-title">Evaluation</h3>
+                <div class="preview-stat-list">
+                    ${statsHTML}
+                </div>
+                ${(char.bio || char.personality) ? `
+                    <div class="preview-bio-section">
+                        ${char.bio ? `
+                            <div class="preview-bio-item">
+                                <h4>Biography</h4>
+                                <p>${char.bio}</p>
+                            </div>
+                        ` : ''}
+                        ${char.personality ? `
+                            <div class="preview-bio-item">
+                                <h4>Personality</h4>
+                                <p>${char.personality}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+            </div>
         </div>
-        ${char.bio ? `
-            <div class="preview-bio">
-                <h4>Biography</h4>
-                <p>${char.bio}</p>
-            </div>
-        ` : ''}
-        ${char.personality ? `
-            <div class="preview-personality">
-                <h4>Personality</h4>
-                <p>${char.personality}</p>
-            </div>
-        ` : ''}
     `;
 }
 
