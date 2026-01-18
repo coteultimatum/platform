@@ -726,9 +726,17 @@
                             </select>
                         </div>
                     </div>
-                    <div class="admin-form-row">
-                        <label>Image URL</label>
-                        <input type="text" id="admin-student-image" placeholder="https://...">
+                    <div class="admin-form-row admin-image-row">
+                        <div class="admin-image-preview" id="admin-student-image-preview">
+                            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="32" cy="24" r="12"/>
+                                <path d="M12 56c0-11 9-20 20-20s20 9 20 20"/>
+                            </svg>
+                        </div>
+                        <div class="admin-image-input">
+                            <label>Image URL</label>
+                            <input type="text" id="admin-student-image" placeholder="https://...">
+                        </div>
                     </div>
                     <div class="admin-form-section-title">OAA Stats</div>
                     <div class="admin-form-stats">

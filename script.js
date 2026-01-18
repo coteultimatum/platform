@@ -1772,6 +1772,12 @@ function initAdminApp() {
                 playSound('back');
             }
         });
+        // Enter key to confirm save
+        modalOverlay.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                confirmAdminSave();
+            }
+        });
     }
 
     // Student management initialization
@@ -2176,6 +2182,16 @@ function initStudentManagement() {
         });
     }
 
+    // Image URL preview
+    const imageInput = document.getElementById('admin-student-image');
+    if (imageInput) {
+        imageInput.addEventListener('input', (e) => {
+            updateAdminImagePreview(e.target.value);
+            playSound('type');
+        });
+        imageInput.addEventListener('focus', () => playSound('select'));
+    }
+
     // Modal buttons
     const modalClose = document.getElementById('admin-student-modal-close');
     const modalCancel = document.getElementById('admin-student-cancel');
@@ -2201,6 +2217,17 @@ function initStudentManagement() {
     if (modalSave) {
         modalSave.addEventListener('click', saveStudent);
         modalSave.addEventListener('mouseenter', () => playSound('hover'));
+    }
+
+    // Enter key to save in student modal
+    const studentModal = document.getElementById('admin-student-modal');
+    if (studentModal) {
+        studentModal.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                saveStudent();
+            }
+        });
     }
 
     if (modalDelete) {
@@ -2305,6 +2332,7 @@ function openStudentModal(student) {
     document.getElementById('admin-student-year').value = student?.year || 1;
     document.getElementById('admin-student-class').value = student?.class || 'D';
     document.getElementById('admin-student-image').value = student?.image || '';
+    updateAdminImagePreview(student?.image || '');
     document.getElementById('admin-student-academic').value = student?.stats?.academic || 50;
     document.getElementById('admin-student-intelligence').value = student?.stats?.intelligence || 50;
     document.getElementById('admin-student-decision').value = student?.stats?.decision || 50;
@@ -2321,6 +2349,17 @@ function closeStudentModal() {
     adminState.editingStudent = null;
 }
 
+function updateAdminImagePreview(url) {
+    const preview = document.getElementById('admin-student-image-preview');
+    if (!preview) return;
+
+    if (url && url.trim()) {
+        preview.innerHTML = `<img src="${url}" alt="Preview" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 64 64\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><circle cx=\\'32\\' cy=\\'24\\' r=\\'12\\'/><path d=\\'M12 56c0-11 9-20 20-20s20 9 20 20\\'/></svg>'">`;
+    } else {
+        preview.innerHTML = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="32" cy="24" r="12"/><path d="M12 56c0-11 9-20 20-20s20 9 20 20"/></svg>`;
+    }
+}
+
 async function saveStudent() {
     const name = document.getElementById('admin-student-name').value.trim();
     const year = parseInt(document.getElementById('admin-student-year').value);
@@ -2331,6 +2370,15 @@ async function saveStudent() {
         playSound('error');
         return;
     }
+
+    const saveBtn = document.getElementById('admin-student-save');
+    if (saveBtn.disabled) return; // Prevent double-click
+
+    // Show loading state
+    saveBtn.disabled = true;
+    saveBtn.classList.add('saving');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Saving...';
 
     const studentData = {
         name: name,
@@ -2382,6 +2430,11 @@ async function saveStudent() {
     } catch (error) {
         console.error('Error saving student:', error);
         playSound('error');
+    } finally {
+        // Reset loading state
+        saveBtn.disabled = false;
+        saveBtn.classList.remove('saving');
+        saveBtn.textContent = originalText;
     }
 }
 
@@ -2399,6 +2452,14 @@ async function deleteCurrentStudent() {
         return;
     }
 
+    const deleteBtn = document.getElementById('admin-student-delete');
+    if (deleteBtn.disabled) return;
+
+    // Show loading state
+    deleteBtn.disabled = true;
+    const originalText = deleteBtn.textContent;
+    deleteBtn.textContent = 'Deleting...';
+
     try {
         const success = await COTEDB.deleteStudent(key);
         if (success) {
@@ -2412,6 +2473,9 @@ async function deleteCurrentStudent() {
     } catch (error) {
         console.error('Error deleting student:', error);
         playSound('error');
+    } finally {
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = originalText;
     }
 }
 
