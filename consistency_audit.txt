@@ -1,0 +1,119 @@
+COTE: ULTIMATUM - Consistency Audit
+====================================
+
+ANIMATION DURATIONS
+-------------------
+Lock screen fade: 0.5s (screenFadeIn)
+OAA view fade: 0.35s (viewFadeIn)
+Admin login fade: 0.3s (adminFadeIn)
+Admin panel slide: 0.4s (adminSlideIn)
+Creator step fade: 0.3s (creatorFadeIn)
+Admin modal fade: 0.15s
+Comparison modal: 0.3s
+Class cards stagger: 0.5s with 0.1s delays
+Student cards: 0.4s (studentCardIn)
+Profile cards: 0.5s (profileCardIn)
+
+>>> INCONSISTENCY: View fades range from 0.3s to 0.5s
+
+BORDER RADIUS (CSS vars)
+------------------------
+--border-radius: 12px (default)
+--border-radius-sm: 8px
+--border-radius-lg: 16px
+
+Hardcoded values found:
+- 2px: scrollbar thumbs, some progress bars
+- 3px: boot loader, progress bars
+- 4px: small elements, keys, badges
+- 5px: stat bars
+- 6px: buttons, inputs, badges (SHOULD BE 8px?)
+- 8px: inputs, cards (matches --border-radius-sm)
+- 10px: cards, buttons (BETWEEN sm and default)
+- 12px: modals, cards (matches --border-radius)
+- 14px: specific badge
+- 16px: quiz modal (matches --border-radius-lg)
+- 24px: dock icons
+- 50%: circles
+
+>>> INCONSISTENCY: 6px and 10px don't match CSS vars
+
+COLORS (from CSS vars)
+----------------------
+--cyan: #4dc9e6
+--cyan-dim: #3a9db8
+--crimson: #7a2438
+--crimson-light: #9a2e48
+--text-primary: #ffffff
+--text-secondary: #94a3b8
+--text-muted: #64748b
+
+Success green: #22c55e (tailwind green-500)
+Error red: #ef4444 (tailwind red-500)
+Delete red: #e74c3c (different red!)
+
+>>> INCONSISTENCY: Two different reds (#ef4444 vs #e74c3c)
+
+FONT SIZES (common patterns)
+----------------------------
+XS: 0.65rem, 0.7rem
+SM: 0.75rem, 0.8rem, 0.85rem
+Base: 0.9rem, 0.95rem, 1rem
+MD: 1.1rem, 1.15rem, 1.2rem, 1.25rem
+LG: 1.5rem, 1.75rem
+XL: 2rem, 2.5rem
+XXL: 3rem, 5rem, 6rem
+
+>>> Many slight variations (0.85 vs 0.9, 1.1 vs 1.15)
+>>> Could standardize to fewer sizes
+
+Z-INDEX LAYERS
+--------------
+Background: 0, -1
+Content: 10
+Overlays: 100
+Modals: 1000
+Comparison modal: 2000
+Glitch overlay: 9995
+Boot elements: 9996-10000
+
+>>> Looks organized and intentional
+
+BUTTON PADDING (common patterns)
+--------------------------------
+Small: 0.25rem 0.5rem
+Medium: 0.5rem 0.75rem, 0.6rem 1rem
+Large: 0.75rem 1.5rem, 0.875rem 1rem
+
+>>> INCONSISTENCY: 0.875rem is unusual (7/8)
+
+INCONSISTENCIES FOUND
+---------------------
+1. Animation durations vary: 0.3s, 0.35s, 0.4s, 0.5s
+   - Recommend: standardize view transitions to 0.35s
+
+2. Border radius 6px and 10px don't match CSS vars
+   - Recommend: use 8px (--border-radius-sm) or 12px (--border-radius)
+
+3. Two different error/delete reds:
+   - #ef4444 (changelog negative, modal-change negative)
+   - #e74c3c (delete button, status error)
+   - Recommend: pick one (suggest #ef4444 as it's used more)
+
+4. Font sizes have many close variants
+   - 0.85rem vs 0.9rem (both used for "small text")
+   - 1.1rem vs 1.15rem (both used for "medium emphasis")
+   - Not critical but could consolidate
+
+5. Unusual padding value 0.875rem
+   - Used in admin buttons
+   - Consider 0.75rem or 1rem instead
+
+RECOMMENDED FIXES (priority order)
+----------------------------------
+[x] 1. Standardize error red to #ef4444 (also #c0392b → #dc2626)
+[x] 2. Replace border-radius: 6px with 8px (9 occurrences + 1 compound)
+[x] 3. Replace border-radius: 10px with 12px (9 occurrences)
+[x] 4. Standardize view transitions to 0.35s (admin, creator)
+[ ] 5. Font sizes - kept as-is (variations likely intentional)
+[ ] 6. Padding 0.875rem - kept as-is (specific button sizing)

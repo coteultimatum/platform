@@ -600,7 +600,7 @@ body::before {
     padding: 0.4rem 0.8rem;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    border-radius: 8px;
     font-family: 'Orbitron', monospace;
     font-size: 0.75rem;
     color: var(--text-secondary);
@@ -718,7 +718,7 @@ body::before {
     height: 44px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1095,7 +1095,7 @@ body::before {
     height: 44px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1247,7 +1247,7 @@ body::before {
     color: var(--text-muted);
     background: transparent;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     text-transform: uppercase;
@@ -1280,13 +1280,13 @@ body::before {
 }
 
 .sort-btn[data-sort="overall"] {
-    color: #e74c3c;
+    color: #ef4444;
 }
 .sort-btn[data-sort="overall"]:hover {
     background: rgba(231, 76, 60, 0.15);
 }
 .sort-btn[data-sort="overall"].active {
-    color: #e74c3c;
+    color: #ef4444;
     background: rgba(231, 76, 60, 0.2);
     box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
 }
@@ -1586,7 +1586,7 @@ body::before {
     width: 40px;
     height: 40px;
     background: var(--class-color);
-    border-radius: 10px;
+    border-radius: 12px;
     font-family: 'Orbitron', monospace;
     font-size: 1.25rem;
     font-weight: 700;
@@ -1746,7 +1746,7 @@ body::before {
 .student-avatar {
     width: 36px;
     height: 36px;
-    border-radius: 6px;
+    border-radius: 8px;
     object-fit: cover;
     border: 2px solid var(--bg-secondary);
 }
@@ -1754,7 +1754,7 @@ body::before {
 .student-avatar-placeholder {
     width: 36px;
     height: 36px;
-    border-radius: 6px;
+    border-radius: 8px;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
     border: 2px solid var(--class-color);
     display: flex;
@@ -1975,7 +1975,7 @@ body::before {
 .student-card-avatar {
     width: 56px;
     height: 56px;
-    border-radius: 10px;
+    border-radius: 12px;
     object-fit: cover;
     border: 2px solid var(--cyan-dim);
 }
@@ -1983,7 +1983,7 @@ body::before {
 .student-card-avatar-placeholder {
     width: 56px;
     height: 56px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
     border: 2px solid var(--cyan-dim);
     display: flex;
@@ -2268,7 +2268,7 @@ body::before {
 }
 
 .overall-grade-box {
-    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     border-radius: var(--border-radius);
     padding: 1.25rem;
     text-align: center;
@@ -2703,7 +2703,7 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 12px;
     background: rgba(77, 201, 230, 0.1);
     border: 1px solid rgba(77, 201, 230, 0.2);
 }
@@ -2736,7 +2736,7 @@ body::before {
     background: rgba(231, 76, 60, 0.1);
     border-color: rgba(231, 76, 60, 0.3);
 }
-.exam-type-icon.poll svg { color: #e74c3c; }
+.exam-type-icon.poll svg { color: #ef4444; }
 
 .exam-type-icon.sports {
     background: rgba(230, 126, 34, 0.1);
@@ -2819,7 +2819,7 @@ body::before {
 
 .exam-tag.danger {
     background: rgba(231, 76, 60, 0.15);
-    color: #e74c3c;
+    color: #ef4444;
     border-color: rgba(231, 76, 60, 0.3);
 }
 
@@ -3291,7 +3291,7 @@ body::before {
     font-family: 'Orbitron', monospace;
     font-size: 1.75rem;
     font-weight: 700;
-    color: #e74c3c;
+    color: #ef4444;
     text-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
 }
 
@@ -3595,7 +3595,7 @@ body::before {
     border: 1px solid var(--crimson-light);
     color: var(--crimson-light);
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -3661,7 +3661,7 @@ body::before {
 .admin-class-badge {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3679,7 +3679,7 @@ body::before {
     width: 100%;
     background: var(--bg-secondary);
     border: 1px solid var(--bg-tertiary);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 0.625rem;
     color: var(--text-primary);
     font-family: 'Orbitron', monospace;
@@ -3853,7 +3853,7 @@ body::before {
     border-left: 2px solid transparent;
     margin-bottom: 0.25rem;
     background: rgba(255, 255, 255, 0.02);
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 8px 8px 0;
     font-size: 0.85rem;
     transition: all 0.2s ease;
 }
@@ -4071,11 +4071,11 @@ body::before {
 
 /* Admin View Transitions */
 .admin-login-container {
-    animation: adminFadeIn 0.3s ease-out;
+    animation: adminFadeIn 0.35s ease-out;
 }
 
 .admin-panel-view {
-    animation: adminSlideIn 0.4s ease-out;
+    animation: adminSlideIn 0.35s ease-out;
 }
 
 @keyframes adminFadeIn {
@@ -4530,16 +4530,16 @@ body::before {
 .admin-modal-delete {
     padding: 0.6rem 1rem;
     background: rgba(231, 76, 60, 0.15);
-    border: 1px solid #e74c3c;
+    border: 1px solid #ef4444;
     border-radius: var(--border-radius-sm);
-    color: #e74c3c;
+    color: #ef4444;
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .admin-modal-delete:hover {
-    background: #e74c3c;
+    background: #ef4444;
     color: white;
 }
 
@@ -4791,7 +4791,7 @@ body::before {
 /* Creator Steps */
 .creator-step {
     display: none;
-    animation: creatorFadeIn 0.3s ease-out;
+    animation: creatorFadeIn 0.35s ease-out;
 }
 
 .creator-step.active {
@@ -4996,7 +4996,7 @@ body::before {
     align-items: center;
     padding: 0.5rem 1rem;
     background: rgba(231, 76, 60, 0.1);
-    border: 1px solid #e74c3c;
+    border: 1px solid #ef4444;
     border-radius: 8px;
 }
 
@@ -5010,7 +5010,7 @@ body::before {
 .creator-overall-badge .overall-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #e74c3c;
+    color: #ef4444;
     line-height: 1;
 }
 
@@ -5319,7 +5319,7 @@ body::before {
     padding: 1rem 0.5rem 1.25rem;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
@@ -5376,7 +5376,7 @@ body::before {
 .trait-quiz-card-icon {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -5554,7 +5554,7 @@ body::before {
     padding: 0.4rem 0.5rem;
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    border-radius: 8px;
     color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 600;
@@ -5577,7 +5577,7 @@ body::before {
     gap: 0.4rem;
     background: rgba(154, 46, 72, 0.15);
     border: 2px solid var(--crimson);
-    border-radius: 6px;
+    border-radius: 8px;
     color: var(--crimson);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -5876,7 +5876,7 @@ body::before {
 
 /* Preview Grade Box */
 .preview-grade-box {
-    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     border-radius: var(--border-radius);
     padding: 1rem;
     text-align: center;
@@ -6263,7 +6263,7 @@ body::before {
     padding: 1rem 1.25rem;
     background: rgba(0, 0, 0, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--text-secondary);
     font-size: 0.95rem;
     text-align: left;
