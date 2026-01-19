@@ -5213,7 +5213,8 @@ body::before {
     font-weight: 700;
     color: var(--text-primary);
     width: 35px;
-    text-align: right;
+    text-align: center;
+    margin-left: calc(-35px / 2);
 }
 
 /* Discover Button */
