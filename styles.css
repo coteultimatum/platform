@@ -5058,24 +5058,15 @@ body::before {
     opacity: 1;
 }
 
-/* Bar Container - mirrors .eval-card-controls layout */
+/* Bar Container */
 .eval-card-bar-container {
-    display: flex;
-    gap: 1rem;
     margin-bottom: 0.75rem;
 }
 
-/* Spacer to match value display width */
-.eval-card-bar-container::after {
-    content: '';
-    min-width: 35px;
-}
-
 .eval-card-bar {
-    flex: 1;
-    height: 16px;
+    height: 12px;
     background: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    border-radius: 4px;
     position: relative;
     overflow: hidden;
 }
@@ -5101,19 +5092,19 @@ body::before {
 .eval-bar-locked-left {
     left: 0;
     width: 40%;
-    border-radius: 8px 0 0 8px;
+    border-radius: 4px 0 0 4px;
 }
 
 .eval-bar-locked-right {
     right: 0;
     width: 40%;
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 4px 4px 0;
 }
 
 /* Fill bar */
 .eval-bar-fill {
     height: 100%;
-    border-radius: 8px;
+    border-radius: 4px;
     transition: width 0.3s ease, left 0.3s ease;
     position: absolute;
     top: 0;
