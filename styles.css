@@ -5058,10 +5058,10 @@ body::before {
     opacity: 1;
 }
 
-/* Bar Container - leave space for value display to align with slider */
+/* Bar Container - align with slider end (value center) */
 .eval-card-bar-container {
     margin-bottom: 0.75rem;
-    margin-right: calc(35px + 1rem);
+    margin-right: calc(35px / 2 + 1rem);
 }
 
 .eval-card-bar {
@@ -5213,7 +5213,8 @@ body::before {
     font-weight: 700;
     color: var(--text-primary);
     width: 35px;
-    text-align: right;
+    text-align: center;
+    margin-left: calc(-35px / 2);
 }
 
 /* Discover Button */
