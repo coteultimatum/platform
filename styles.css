@@ -5213,7 +5213,7 @@ body::before {
     font-weight: 700;
     color: var(--text-primary);
     width: 35px;
-    text-align: right;
+    text-align: left;
     flex-shrink: 0;
 }
 
